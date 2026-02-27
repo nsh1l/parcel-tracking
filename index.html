@@ -24,6 +24,16 @@
                 </div>
             </div>
 
+            <div class="input-group">
+                <label for="memo">メモ</label>
+                <input
+                    type="text"
+                    id="memo"
+                    placeholder="品番 (発送先)"
+                    autocomplete="off"
+                />
+            </div>
+
             <div class="toggle-container">
                 <label>配送業者</label>
                 <div class="toggle-buttons">
@@ -67,6 +77,16 @@
                 <div class="url-label">確認URL:</div>
                 <div class="url-display" id="urlDisplay"></div>
                 <button class="copy-btn" id="copyBtn">URLをコピー</button>
+            </div>
+
+            <div class="saved-section" id="savedSection">
+                <div class="saved-header">
+                    <span class="saved-title">📋 保存済み追跡番号</span>
+                    <span class="saved-count" id="savedCount">0 / 5</span>
+                </div>
+                <div class="saved-list" id="savedList">
+                    <p class="saved-empty">保存された追跡番号はありません</p>
+                </div>
             </div>
         </div>
         <script src="./main.js"></script>

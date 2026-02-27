@@ -117,7 +117,7 @@ input[type="text"]:focus {
 
 .url-output {
     display: none;
-    margin-top: 20px;
+    margin-bottom: 24px;
     padding: 16px;
     background: #f8f9ff;
     border-radius: 10px;
@@ -242,6 +242,100 @@ input[type="text"]:focus {
 
 .error-message.show {
     display: block;
+}
+
+/* 保存済み追跡番号 */
+.saved-section {
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.saved-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f8f9ff;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.saved-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #555;
+}
+
+.saved-count {
+    font-size: 12px;
+    font-weight: 600;
+    color: #667eea;
+    background: white;
+    border: 1px solid #667eea;
+    border-radius: 20px;
+    padding: 2px 10px;
+}
+
+.saved-list {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.saved-empty {
+    text-align: center;
+    color: #aaa;
+    font-size: 13px;
+    padding: 16px;
+}
+
+.saved-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: white;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.saved-item:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.saved-item-text {
+    flex: 1;
+    font-size: 13px;
+    color: #333;
+    word-break: break-all;
+    line-height: 1.4;
+}
+
+.saved-item-carrier {
+    font-weight: 700;
+    color: #667eea;
+}
+
+.saved-item-delete {
+    padding: 4px 8px;
+    background: none;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    color: #aaa;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.saved-item-delete:hover {
+    border-color: #e53e3e;
+    color: #e53e3e;
+    background: #fff5f5;
 }
 
 @media (max-width: 480px) {
