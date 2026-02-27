@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>配送状況確認</title>
+        <link href="./global.css" rel="stylesheet" />
+    </head>
+    <body>
+        <div class="input-container">
+            <h1>📦 配送状況確認</h1>
+            <p class="subtitle">配送番号を入力して状況を確認</p>
+
+            <div class="input-group">
+                <label for="trackingNumber">配送番号</label>
+                <input
+                    type="text"
+                    id="trackingNumber"
+                    placeholder="配送番号を入力してください"
+                    autocomplete="off"
+                />
+                <div class="error-message" id="errorMessage">
+                    配送番号を入力してください
+                </div>
+            </div>
+
+            <div class="toggle-container">
+                <label>配送業者</label>
+                <div class="toggle-buttons">
+                    <button class="toggle-btn active" data-carrier="sagawa">
+                        <span class="company-icon">🚚</span>
+                        <span>佐川急便</span>
+                    </button>
+                    <button class="toggle-btn" data-carrier="yamato">
+                        <span class="company-icon">🐈</span>
+                        <span>ヤマト運輸</span>
+                    </button>
+                    <button class="toggle-btn" data-carrier="seino">
+                        <span class="company-icon">🦘</span>
+                        <span>西濃運輸</span>
+                    </button>
+                    <button class="toggle-btn" data-carrier="dhl">
+                        <span class="company-icon">🛩️</span>
+                        <span>DHL</span>
+                    </button>
+                    <button class="toggle-btn" data-carrier="ocs">
+                        <span class="company-icon">🌐</span>
+                        <span>OCS</span>
+                    </button>
+                </div>
+            </div>
+            <div class="action-toggle">
+                <label>確認方法</label>
+                <div class="action-buttons">
+                    <button class="action-btn active" data-action="navigate">
+                        ページ遷移
+                    </button>
+                    <button class="action-btn" data-action="show-url">
+                        URL表示
+                    </button>
+                </div>
+            </div>
+            <button class="check-btn" id="checkBtn">配送状況を確認</button>
+        </div>
+        <div class="output-container">
+            <div class="url-output" id="urlOutput">
+                <div class="url-label">確認URL:</div>
+                <div class="url-display" id="urlDisplay"></div>
+                <button class="copy-btn" id="copyBtn">URLをコピー</button>
+            </div>
+        </div>
+        <script src="./main.js"></script>
+    </body>
+</html>
