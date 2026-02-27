@@ -20,7 +20,7 @@ const CARRIER_LABELS = {
   ocs: "OCS",
 };
 
-const MAX_SAVED = 5;
+const MAX_SAVED = 8;
 
 // ローカルストレージから保存データ読み込み
 let savedItems = JSON.parse(localStorage.getItem("savedTrackings") || "[]");
