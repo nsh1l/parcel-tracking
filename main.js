@@ -1,3 +1,5 @@
+import { CARRIERS } from "./carriers.js";
+
 let selectedCarrier = "sagawa";
 let selectedAction = "navigate";
 const actionBtns = document.querySelectorAll(".action-btn");
@@ -12,32 +14,18 @@ const toggleBtns = document.querySelectorAll(".toggle-btn");
 const savedList = document.getElementById("savedList");
 const savedCount = document.getElementById("savedCount");
 
-const CARRIER_LABELS = {
-  sagawa: "佐川急便",
-  yamato: "ヤマト運輸",
-  seino: "西濃運輸",
-  dhl: "DHL",
-  ocs: "OCS",
-};
+const label = CARRIERS[item.carrier]?.label ?? item.carrier;
 
 const MAX_SAVED = 8;
 
 // ローカルストレージから保存データ読み込み
 let savedItems = JSON.parse(localStorage.getItem("savedTrackings") || "[]");
 
+// buildUrl関数はシンプルに
 function buildUrl(carrier, cleanedNumber) {
-  if (carrier === "sagawa") {
-    return `http://k2k.sagawa-exp.co.jp/p/web/okurijosearch.do?okurijoNo=${encodeURIComponent(cleanedNumber)}`;
-  } else if (carrier === "yamato") {
-    return `https://member.kms.kuronekoyamato.co.jp/parcel/detail?pno=${encodeURIComponent(cleanedNumber)}`;
-  } else if (carrier === "seino") {
-    return `https://track.seino.co.jp/cgi-bin/gnpquery.pgm?GNPNO1=${encodeURIComponent(cleanedNumber)}`;
-  } else if (carrier === "dhl") {
-    return `https://mydhl.express.dhl/jp/ja/tracking.html#/results?id=${encodeURIComponent(cleanedNumber)}`;
-  } else if (carrier === "ocs") {
-    return `https://webcsw.ocs.co.jp/csw/ECSWG0201R00003P.do?cwbno=${encodeURIComponent(cleanedNumber)}`;
-  }
+  return CARRIERS[carrier]?.buildUrl(cleanedNumber) ?? null;
 }
+// ラベル参照も
 
 function saveToStorage() {
   localStorage.setItem("savedTrackings", JSON.stringify(savedItems));
@@ -46,10 +34,13 @@ function saveToStorage() {
 function renderSaved() {
   savedCount.textContent = `${savedItems.length} / ${MAX_SAVED}`;
   if (savedItems.length === 0) {
-    savedList.innerHTML = '<p class="saved-empty">保存された追跡番号はありません</p>';
+    savedList.innerHTML =
+      '<p class="saved-empty">保存された追跡番号はありません</p>';
     return;
   }
-  savedList.innerHTML = savedItems.map((item, i) => `
+  savedList.innerHTML = savedItems
+    .map(
+      (item, i) => `
     <div class="saved-item" data-index="${i}">
       <div class="saved-item-text">
         <span class="saved-item-carrier">${CARRIER_LABELS[item.carrier]}</span>
@@ -57,10 +48,12 @@ function renderSaved() {
       </div>
       <button class="saved-item-delete" data-index="${i}">✕</button>
     </div>
-  `).join("");
+  `,
+    )
+    .join("");
 
   // クリックで追跡
-  savedList.querySelectorAll(".saved-item").forEach(el => {
+  savedList.querySelectorAll(".saved-item").forEach((el) => {
     el.addEventListener("click", (e) => {
       if (e.target.classList.contains("saved-item-delete")) return;
       const idx = parseInt(el.dataset.index);
@@ -71,7 +64,7 @@ function renderSaved() {
   });
 
   // 削除
-  savedList.querySelectorAll(".saved-item-delete").forEach(btn => {
+  savedList.querySelectorAll(".saved-item-delete").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       const idx = parseInt(btn.dataset.index);
@@ -84,7 +77,9 @@ function renderSaved() {
 
 function saveCurrentItem(carrier, memo, trackingNumber) {
   // 同じ追跡番号・業者の重複チェック
-  const exists = savedItems.some(i => i.carrier === carrier && i.trackingNumber === trackingNumber);
+  const exists = savedItems.some(
+    (i) => i.carrier === carrier && i.trackingNumber === trackingNumber,
+  );
   if (exists) return;
 
   if (savedItems.length >= MAX_SAVED) {
