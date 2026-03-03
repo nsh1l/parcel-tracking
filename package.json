@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "bun": "^1.3.10"
+  },
+  "name": "parcel-tracking-app",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
