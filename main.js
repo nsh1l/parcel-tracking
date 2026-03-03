@@ -1,4 +1,4 @@
-import { CARRIERS } from "./carriers.js";
+import { CARRIERS } from "./carrier.js";
 
 let selectedCarrier = "sagawa";
 let selectedAction = "navigate";
@@ -13,8 +13,6 @@ const errorMessage = document.getElementById("errorMessage");
 const toggleBtns = document.querySelectorAll(".toggle-btn");
 const savedList = document.getElementById("savedList");
 const savedCount = document.getElementById("savedCount");
-
-const label = CARRIERS[item.carrier]?.label ?? item.carrier;
 
 const MAX_SAVED = 8;
 
@@ -43,7 +41,7 @@ function renderSaved() {
       (item, i) => `
     <div class="saved-item" data-index="${i}">
       <div class="saved-item-text">
-        <span class="saved-item-carrier">${CARRIER_LABELS[item.carrier]}</span>
+        <span class="saved-item-carrier">${CARRIERS[item.carrier]?.label ?? item.carrier}</span>
         ${item.memo ? ` ${item.memo}` : ""} - ${item.trackingNumber}
       </div>
       <button class="saved-item-delete" data-index="${i}">✕</button>
