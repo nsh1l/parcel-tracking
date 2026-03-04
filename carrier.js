@@ -17,6 +17,12 @@ export const CARRIERS = {
     buildUrl: (n) =>
       `https://track.seino.co.jp/cgi-bin/gnpquery.pgm?GNPNO1=${encodeURIComponent(n)}`,
   },
+  okaken: {
+    label: "オカケン",
+    icon: "🦺",
+    buildUrl: (n) =>
+      `https://www.okaken.co.jp/refer/respond.php?url=http://www1.okaken.co.jp/CCB/RMHR0002.PGM?FUNC=S&PWD=&GEN=${encodeURIComponent(n)}&SNY=&`,
+  },
   dhl: {
     label: "DHL",
     icon: "🛩️",
