@@ -29,4 +29,10 @@ export const CARRIERS = {
     buildUrl: (n) =>
       `https://webcsw.ocs.co.jp/csw/ECSWG0201R00003P.do?cwbno=${encodeURIComponent(n)}`,
   },
+  ydh: {
+    label: "YDH",
+    icon: "🐼",
+    buildUrl: (n) =>
+      `https://www.ordertracker.com/track/${encodeURIComponent(n)}`,
+  },
 };
