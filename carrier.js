@@ -17,6 +17,12 @@ export const CARRIERS = {
     buildUrl: (n) =>
       `https://track.seino.co.jp/cgi-bin/gnpquery.pgm?GNPNO1=${encodeURIComponent(n)}`,
   },
+  fukutsu: {
+    label: "福山通運",
+    icon: "🌅",
+    buildUrl: (n) =>
+      `https://corp.fukutsu.co.jp/corp/recieve/tracking_no_hunt/${encodeURIComponent(n)}`,
+  },
   okaken: {
     label: "オカケン",
     icon: "🦺",
