@@ -8,7 +8,7 @@ body {
     font-family:
         -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans",
         "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: ghostwhite;
     min-height: 100vh;
     display: grid;
     grid-template-columns: 1fr 2fr;
