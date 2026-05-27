@@ -1,4 +1,7 @@
 import { CARRIERS } from "./carrier.js";
+import { getSavedItems, saveItems, addSavedItem, removeSavedItem } from "./storage.js";
+import { buildUrl, getCarrierLabel, formatUrlDisplay } from "./url-builder.js";
+import { validateTrackingNumber } from "./validator.js";
 
 let selectedCarrier = "sagawa";
 let selectedAction = "navigate";
@@ -16,24 +19,11 @@ const savedCount = document.getElementById("savedCount");
 
 const MAX_SAVED = 8;
 
-// ローカルストレージから保存データ読み込み
-let savedItems = JSON.parse(localStorage.getItem("savedTrackings") || "[]");
-
-// buildUrl関数はシンプルに
-function buildUrl(carrier, cleanedNumber) {
-  return CARRIERS[carrier]?.buildUrl(cleanedNumber) ?? null;
-}
-// ラベル参照も
-
-function saveToStorage() {
-  localStorage.setItem("savedTrackings", JSON.stringify(savedItems));
-}
-
 function renderSaved() {
+  const savedItems = getSavedItems();
   savedCount.textContent = `${savedItems.length} / ${MAX_SAVED}`;
   if (savedItems.length === 0) {
-    savedList.innerHTML =
-      '<p class="saved-empty">保存された追跡番号はありません</p>';
+    savedList.innerHTML = '<p class="saved-empty">保存された追跡番号はありません</p>';
     return;
   }
   savedList.innerHTML = savedItems
@@ -41,7 +31,7 @@ function renderSaved() {
       (item, i) => `
     <div class="saved-item" data-index="${i}">
       <div class="saved-item-text">
-        <span class="saved-item-carrier">${CARRIERS[item.carrier]?.label ?? item.carrier}</span>
+        <span class="saved-item-carrier">${getCarrierLabel(item.carrier)}</span>
         ${item.memo ? ` ${item.memo}` : ""} - ${item.trackingNumber}
       </div>
       <button class="saved-item-delete" data-index="${i}">✕</button>
@@ -50,7 +40,6 @@ function renderSaved() {
     )
     .join("");
 
-  // クリックで追跡
   savedList.querySelectorAll(".saved-item").forEach((el) => {
     el.addEventListener("click", (e) => {
       if (e.target.classList.contains("saved-item-delete")) return;
@@ -61,35 +50,16 @@ function renderSaved() {
     });
   });
 
-  // 削除
   savedList.querySelectorAll(".saved-item-delete").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       const idx = parseInt(btn.dataset.index);
-      savedItems.splice(idx, 1);
-      saveToStorage();
+      removeSavedItem(idx);
       renderSaved();
     });
   });
 }
 
-function saveCurrentItem(carrier, memo, trackingNumber) {
-  // 同じ追跡番号・業者の重複チェック
-  const exists = savedItems.some(
-    (i) => i.carrier === carrier && i.trackingNumber === trackingNumber,
-  );
-  if (exists) return;
-
-  if (savedItems.length >= MAX_SAVED) {
-    // 最古を削除
-    savedItems.shift();
-  }
-  savedItems.push({ carrier, memo, trackingNumber });
-  saveToStorage();
-  renderSaved();
-}
-
-// 配送業者の選択
 toggleBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     toggleBtns.forEach((b) => b.classList.remove("active"));
@@ -99,7 +69,6 @@ toggleBtns.forEach((btn) => {
   });
 });
 
-// 確認方法の選択
 actionBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     actionBtns.forEach((b) => b.classList.remove("active"));
@@ -109,9 +78,9 @@ actionBtns.forEach((btn) => {
   });
 });
 
-// URLコピー機能
 copyBtn.addEventListener("click", async () => {
-  const url = urlDisplay.textContent;
+  // innerHTMLなのでタグを除いたテキストのみを取得
+  const url = urlDisplay.querySelector("a")?.href || urlDisplay.textContent.trim();
   try {
     await navigator.clipboard.writeText(url);
     copyBtn.textContent = "コピーしました！";
@@ -125,7 +94,6 @@ copyBtn.addEventListener("click", async () => {
   }
 });
 
-// 配送状況確認ボタン
 checkBtn.addEventListener("click", () => {
   const trackingNumber = trackingInput.value.trim();
 
@@ -136,35 +104,40 @@ checkBtn.addEventListener("click", () => {
   }
 
   errorMessage.classList.remove("show");
-
   const cleanedNumber = trackingNumber.replace(/-/g, "");
+
+  const validation = validateTrackingNumber(selectedCarrier, cleanedNumber);
+  if (!validation.isValid) {
+    errorMessage.textContent = validation.message;
+    errorMessage.classList.add("show");
+    trackingInput.focus();
+    return;
+  }
+
   const memo = memoInput.value.trim();
   const url = buildUrl(selectedCarrier, cleanedNumber);
 
-  // 保存
-  saveCurrentItem(selectedCarrier, memo, trackingNumber);
+  addSavedItem(selectedCarrier, memo, trackingNumber, MAX_SAVED);
+  renderSaved();
 
   if (selectedAction === "navigate") {
     window.open(url, "_blank");
     urlOutput.classList.remove("show");
   } else if (selectedAction === "show-url") {
-    urlDisplay.textContent = url;
+    urlDisplay.innerHTML = formatUrlDisplay(selectedCarrier, trackingNumber, url);
     urlOutput.classList.add("show");
   }
 });
 
-// Enterキーで確認
 trackingInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") {
     checkBtn.click();
   }
 });
 
-// 入力時にエラーメッセージを消す & 数値とハイフン以外を除去
 trackingInput.addEventListener("input", (e) => {
   errorMessage.classList.remove("show");
   e.target.value = e.target.value.replace(/[^0-9-]/g, "");
 });
 
-// 初期描画
 renderSaved();

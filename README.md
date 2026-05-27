@@ -1,15 +1,37 @@
-# parcel-tracking-app
+# 📦 配送状況確認ツール (Parcel Tracking App)
 
-To install dependencies:
+配送業者ごとの追跡URLを簡単に生成し、配送状況を確認するためのWebアプリケーションです。
 
-```bash
-bun install
-```
+## 特徴
 
-To run:
+- **複数業者対応**: 佐川急便, ヤマト運輸, 西濃運輸, 福山通運, オカケン, DHL, OCS, YDH に対応。
+- **配送番号バリデーション**: 佐川急便・ヤマト運輸などの主要業者において、適切な桁数（例: 12桁）であるかをチェックします。
+- **柔軟な確認方法**:
+  - **ページ遷移**: 生成したURLを新しいタブで直接開きます。
+  - **URL表示**: 業者名、追跡番号、URLを整形して表示し、ワンクリックでコピー可能です。
+- **履歴保存機能**: 最近確認した追跡番号とメモをブラウザのLocalStorageに保存し、再入力の手間を省きます（最大8件まで）。
+- **DHL対応**: DHL選択時は表記を「Waybill No.」に自動切り替えします。
 
-```bash
-bun run 
-```
+## 技術スタック
 
-This project was created using `bun init` in bun v1.3.10. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+- HTML / CSS / JavaScript (ES Modules)
+
+## 使い方
+
+1. **配送業者の選択**: 利用する配送業者のボタンを選択します。
+2. **配送番号の入力**: 追跡番号を入力します（ハイフンが含まれていても自動で除去されます）。
+3. **メモの入力（任意）**: 品番や発送先などの情報をメモとして入力できます。
+4. **確認方法の選択**: 「ページ遷移」か「URL表示」を選択します。
+5. **確認ボタンをクリック**: 「配送状況を確認」ボタンを押して追跡を開始します。
+
+## 開発
+
+### ファイル構成
+
+- `index.html`: メインUI
+- `main.js`: UI制御およびイベントハンドリング
+- `carrier.js`: 配送業者の定義とURL生成ロジック
+- `storage.js`: LocalStorageへの保存・管理ロジック
+- `url-builder.js`: 表示用URLの構築とラベル判定
+- `validator.js`: 入力形式のバリデーション
+- `global.css`: スタイル定義
