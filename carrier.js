@@ -51,6 +51,6 @@ export const CARRIERS = {
     label: "日本郵便",
     icon: "🏣",
     buildUrl: (n) =>
-      `https://trackings.post.japanpost.jp/services/srv/search?requestNo1=${encodeURIComponent(n)}`,
+      `https://trackings.post.japanpost.jp/services/srv/search?requestNo1=${encodeURIComponent(n)}&requestNo2=&requestNo3=&requestNo4=&requestNo5=&requestNo6=&requestNo7=&requestNo8=&requestNo9=&requestNo10=&search.x=100&search.y=25&startingUrlPatten=&locale=ja`,
   },
 };
