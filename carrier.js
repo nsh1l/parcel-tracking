@@ -47,4 +47,10 @@ export const CARRIERS = {
     buildUrl: (n) =>
       `https://www.ordertracker.com/track/${encodeURIComponent(n)}`,
   },
+  japanpost: {
+    label: "日本郵便",
+    icon: "🏣",
+    buildUrl: (n) =>
+      `https://trackings.post.japanpost.jp/services/srv/search?requestNo1=${encodeURIComponent(n)}`,
+  },
 };
