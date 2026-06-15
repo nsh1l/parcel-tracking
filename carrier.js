@@ -61,4 +61,11 @@ export const CARRIERS = {
     buildUrl: (n) =>
       `https://trackings.post.japanpost.jp/services/srv/search?requestNo1=${encodeURIComponent(n)}&requestNo2=&requestNo3=&requestNo4=&requestNo5=&requestNo6=&requestNo7=&requestNo8=&requestNo9=&requestNo10=&search.x=100&search.y=25&startingUrlPatten=&locale=ja`,
   },
+  sfexpress: {
+    label: "SF Express",
+    icon: "🇨🇳",
+    detect: /^SF\d{13}$/i,
+    buildUrl: (n) =>
+      `https://www.sf-express.com/chn/en/waybill/waybill-detail/${encodeURIComponent(n)}`,
+  },
 };

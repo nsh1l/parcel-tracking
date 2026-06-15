@@ -1,7 +1,7 @@
 import { CARRIERS } from "./carrier.js";
 
 // Detection order: most unique pattern first
-const DETECT_ORDER = ["japanpost", "dhl"];
+const DETECT_ORDER = ["japanpost", "dhl", "sfexpress"];
 
 /**
  * Detect carrier from tracking number.

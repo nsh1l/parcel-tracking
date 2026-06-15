@@ -12,5 +12,15 @@ export function validateTrackingNumber(carrier, cleanedNumber) {
       };
     }
   }
+  if (carrier === "sfexpress") {
+    const ok = /^\d{12}$/.test(cleanedNumber) || /^SF\d{13}$/i.test(cleanedNumber);
+    if (!ok) {
+      return {
+        isValid: false,
+        message:
+          "SF Expressの追跡番号は12桁の数字、またはSF+13桁の数字で入力してください",
+      };
+    }
+  }
   return { isValid: true };
 }

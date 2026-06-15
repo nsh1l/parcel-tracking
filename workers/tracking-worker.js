@@ -32,6 +32,7 @@ function buildUrl(carrier, n) {
   const urls = {
     japanpost: `https://trackings.post.japanpost.jp/services/srv/search?requestNo1=${encoded}&requestNo2=&requestNo3=&requestNo4=&requestNo5=&requestNo6=&requestNo7=&requestNo8=&requestNo9=&requestNo10=&search.x=100&search.y=25&startingUrlPatten=&locale=ja`,
     sagawa: `http://k2k.sagawa-exp.co.jp/p/web/okurijosearch.do?okurijoNo=${encoded}`,
+    sfexpress: `https://www.sf-express.com/chn/en/waybill/waybill-detail/${encoded}`,
   };
   return urls[carrier] || null;
 }
