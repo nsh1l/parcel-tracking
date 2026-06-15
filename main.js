@@ -181,37 +181,18 @@ async function checkStatus(carrier, cleanedNumber, displayNumber) {
     return;
   }
 
-  if (carrier === "japanpost") {
-    renderJapanPostStatus(result, displayNumber);
-  } else {
-    statusOutput.innerHTML = `
-      <div class="status-header">
-        <span class="status-label">📡 ステータス確認</span>
-        <span class="status-carrier">${getCarrierLabel(carrier)}</span>
-      </div>
-      <div class="status-body">
-        <div class="status-unavailable">この配送業者はまだ対応していません</div>
-      </div>
-    `;
-  }
+  renderGenericStatus(result, carrier, displayNumber);
 }
 
-function renderJapanPostStatus(result, displayNumber) {
-  const info = result.info || {};
-  const history = result.history || [];
+function getStatusIcon(carrier) {
+  return CARRIERS[carrier]?.icon || "📦";
+}
 
-  if (result.status === "error") {
-    statusOutput.innerHTML = `
-      <div class="status-header">
-        <span class="status-label">📡 ステータス確認</span>
-        <span class="status-carrier">🏣 日本郵便</span>
-      </div>
-      <div class="status-body">
-        <div class="status-error">${result.message}</div>
-      </div>
-    `;
-    return;
-  }
+function renderGenericStatus(result, carrier, displayNumber) {
+  const info = result.info || {};
+  const latest = result.latest || {};
+  const history = result.history || [];
+  const icon = getStatusIcon(carrier);
 
   let historyHtml = "";
   if (history.length > 0) {
@@ -236,30 +217,27 @@ function renderJapanPostStatus(result, displayNumber) {
   statusOutput.innerHTML = `
     <div class="status-header">
       <span class="status-label">📡 ステータス確認</span>
-      <span class="status-carrier">🏣 日本郵便</span>
+      <span class="status-carrier">${icon} ${getCarrierLabel(carrier)}</span>
     </div>
     <div class="status-body">
-      ${info.status ? `
-        <div class="status-main">
-          <span class="status-marker">●</span>
-          <span class="status-text">${info.status}</span>
-        </div>
-        <div class="status-details">
-          ${info.date ? `<span>📅 ${info.date}</span>` : ""}
-          ${info.type ? `<span>📦 ${info.type}</span>` : ""}
-          ${info.office ? `<span>🏢 ${info.office}</span>` : ""}
-          ${info.prefecture ? `<span>📍 ${info.prefecture}</span>` : ""}
-        </div>
-      ` : `
-        <div class="status-main">
-          <span class="status-text">ステータス情報が取得できませんでした</span>
-        </div>
-      `}
+      <div class="status-main">
+        <span class="status-marker">●</span>
+        <span class="status-text">${latest.status || info.status || "—"}</span>
+      </div>
+      <div class="status-details">
+        ${info.shipDate ? `<span>📅 出荷日: ${info.shipDate}</span>` : ""}
+        ${info.date ? `<span>📅 ${info.date}</span>` : ""}
+        ${info.type ? `<span>📦 ${info.type}</span>` : ""}
+        ${info.office ? `<span>🏢 ${info.office}</span>` : ""}
+        ${info.prefecture ? `<span>📍 ${info.prefecture}</span>` : ""}
+        ${info.itemCount ? `<span>📊 ${info.itemCount}</span>` : ""}
+        ${info.number ? `<span>🔢 ${info.number}</span>` : ""}
+      </div>
     </div>
     ${historyHtml}
     <div class="status-footer">
-      <a href="${buildUrl("japanpost", displayNumber.replace(/-/g, ""))}" target="_blank" class="status-link">
-        日本郵便のサイトで開く →
+      <a href="${buildUrl(carrier, displayNumber.replace(/-/g, ""))}" target="_blank" class="status-link">
+        ${getCarrierLabel(carrier)}のサイトで開く →
       </a>
     </div>
   `;
