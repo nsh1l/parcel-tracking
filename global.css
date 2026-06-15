@@ -10,12 +10,14 @@ body {
         "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
     background: ghostwhite;
     min-height: 100vh;
+    min-height: 100dvh;
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 8vh;
     justify-content: center;
     align-items: center;
     padding: 20px;
+    -webkit-text-size-adjust: 100%;
 }
 
 .input-container {
@@ -488,5 +490,144 @@ input[type="text"]:focus {
 
     h1 {
         font-size: 24px;
+    }
+}
+
+/* ── Mobile responsive (tablet/phone) ── */
+@media (max-width: 768px) {
+    body {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 12px;
+        align-items: start;
+    }
+
+    .input-container,
+    .output-container {
+        width: 100%;
+        max-width: 100%;
+        padding: 24px 16px;
+        border-radius: 14px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .subtitle {
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+
+    label {
+        font-size: 13px;
+    }
+
+    input[type="text"] {
+        padding: 12px 14px;
+        font-size: 16px; /* iOS zoom prevention */
+        min-height: 44px;
+    }
+
+    /* Toggle buttons: 9 carriers → 3 cols × 3 rows */
+    .toggle-buttons {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+    }
+
+    .toggle-btn {
+        padding: 6px 4px;
+        font-size: 11px;
+        min-height: 44px;
+        justify-content: center;
+    }
+
+    .company-icon {
+        font-size: 22px;
+    }
+
+    /* Action buttons */
+    .action-buttons {
+        gap: 6px;
+    }
+
+    .action-btn {
+        padding: 10px 6px;
+        font-size: 12px;
+        min-height: 44px;
+    }
+
+    .check-btn {
+        padding: 14px;
+        font-size: 16px;
+        min-height: 48px;
+    }
+
+    .error-message {
+        font-size: 12px;
+    }
+
+    /* Saved items */
+    .saved-header {
+        padding: 10px 12px;
+    }
+
+    .saved-item {
+        padding: 10px 10px;
+        min-height: 44px;
+    }
+
+    .saved-item-text {
+        font-size: 12px;
+    }
+
+    /* Status output */
+    .status-output {
+        padding: 12px;
+    }
+
+    .status-body {
+        padding: 10px;
+    }
+
+    .status-text {
+        font-size: 14px;
+    }
+
+    .status-history-item {
+        flex-wrap: wrap;
+        gap: 4px 8px;
+    }
+
+    .history-date {
+        min-width: auto;
+        width: 100%;
+    }
+
+    /* URL output */
+    .url-output {
+        padding: 12px;
+    }
+
+    .url-display {
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    .copy-btn {
+        padding: 12px;
+        font-size: 14px;
+        min-height: 44px;
+    }
+
+    /* Detect badge */
+    .detect-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+    }
+
+    .toggle-container,
+    .action-toggle {
+        margin-bottom: 20px;
     }
 }
