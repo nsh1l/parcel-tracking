@@ -86,8 +86,8 @@ input[type="text"]:focus {
 
 .action-buttons {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
     margin-top: 8px;
 }
 
@@ -336,6 +336,146 @@ input[type="text"]:focus {
     border-color: #e53e3e;
     color: #e53e3e;
     background: #fff5f5;
+}
+
+/* ── Detect badge ── */
+.detect-badge {
+    display: none;
+    margin-top: 6px;
+    padding: 4px 12px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+}
+.detect-badge.show {
+    display: block;
+}
+
+/* ── Status output ── */
+.status-output {
+    display: none;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #f8f9ff;
+    border-radius: 10px;
+    border: 2px solid #667eea;
+}
+.status-output.show {
+    display: block;
+}
+.status-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.status-label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 700;
+}
+.status-carrier {
+    font-size: 12px;
+    font-weight: 600;
+    color: #667eea;
+}
+.status-body {
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+}
+.status-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+.status-marker {
+    color: #10b981;
+    font-size: 12px;
+}
+.status-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+}
+.status-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 12px;
+    color: #666;
+}
+.status-loading {
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+    padding: 8px;
+}
+.status-error {
+    color: #e53e3e;
+    font-size: 13px;
+    font-weight: 600;
+}
+.status-unavailable {
+    text-align: center;
+    color: #999;
+    font-size: 12px;
+    line-height: 1.6;
+}
+.status-history {
+    margin-top: 8px;
+    background: white;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+}
+.status-history summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #667eea;
+    padding: 4px 0;
+}
+.status-history-item {
+    display: flex;
+    gap: 12px;
+    padding: 4px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 12px;
+}
+.status-history-item:last-child {
+    border-bottom: none;
+}
+.history-date {
+    color: #999;
+    min-width: 100px;
+}
+.history-status {
+    color: #333;
+    font-weight: 600;
+    flex: 1;
+}
+.history-office {
+    color: #666;
+}
+.status-footer {
+    text-align: right;
+    margin-top: 8px;
+}
+.status-link {
+    font-size: 12px;
+    color: #667eea;
+    text-decoration: underline;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 480px) {

@@ -2,36 +2,42 @@ export const CARRIERS = {
   sagawa: {
     label: "佐川急便",
     icon: "🚚",
+    detect: /^\d{12}$/,
     buildUrl: (n) =>
       `http://k2k.sagawa-exp.co.jp/p/web/okurijosearch.do?okurijoNo=${encodeURIComponent(n)}`,
   },
   yamato: {
     label: "ヤマト運輸",
     icon: "🐈",
+    detect: /^\d{12}$/,
     buildUrl: (n) =>
       `https://member.kms.kuronekoyamato.co.jp/parcel/detail?pno=${encodeURIComponent(n)}`,
   },
   seino: {
     label: "西濃運輸",
     icon: "🦘",
+    detect: /^\d{12}$/,
     buildUrl: (n) =>
       `https://track.seino.co.jp/cgi-bin/gnpquery.pgm?GNPNO1=${encodeURIComponent(n)}`,
   },
   fukutsu: {
     label: "福山通運",
     icon: "🌅",
+    detect: /^\d{12}$/,
     buildUrl: (n) =>
       `https://corp.fukutsu.co.jp/corp/recieve/tracking_no_hunt/${encodeURIComponent(n)}`,
   },
   okaken: {
     label: "オカケン",
     icon: "🦺",
+    detect: /^\d{12}$/,
     buildUrl: (n) =>
       `https://www.okaken.co.jp/refer/respond.php?url=http://www1.okaken.co.jp/CCB/RMHR0002.PGM?FUNC=S&PWD=&GEN=${encodeURIComponent(n)}&SNY=&`,
   },
   dhl: {
     label: "DHL",
     icon: "🛩️",
+    detect: /^\d{10}$/,
     buildUrl: (n) =>
       `https://mydhl.express.dhl/jp/ja/tracking.html#/results?id=${encodeURIComponent(n)}`,
   },
@@ -44,12 +50,14 @@ export const CARRIERS = {
   ydh: {
     label: "YDH",
     icon: "🐼",
+    detect: /^\d{12}$/,
     buildUrl: (n) =>
       `https://www.ordertracker.com/track/${encodeURIComponent(n)}`,
   },
   japanpost: {
     label: "日本郵便",
     icon: "🏣",
+    detect: /^(?:[A-Za-z]{2}\d{9}JP|\d{11})$/,
     buildUrl: (n) =>
       `https://trackings.post.japanpost.jp/services/srv/search?requestNo1=${encodeURIComponent(n)}&requestNo2=&requestNo3=&requestNo4=&requestNo5=&requestNo6=&requestNo7=&requestNo8=&requestNo9=&requestNo10=&search.x=100&search.y=25&startingUrlPatten=&locale=ja`,
   },

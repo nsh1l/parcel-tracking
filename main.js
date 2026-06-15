@@ -1,5 +1,7 @@
 import { CARRIERS } from "./carrier.js";
-import { getSavedItems, saveItems, addSavedItem, removeSavedItem } from "./storage.js";
+import { detectCarrier } from "./detector.js";
+import { fetchStatus } from "./scraper.js";
+import { getSavedItems, addSavedItem, removeSavedItem } from "./storage.js";
 import { buildUrl, getCarrierLabel, formatUrlDisplay } from "./url-builder.js";
 import { validateTrackingNumber } from "./validator.js";
 
@@ -7,6 +9,7 @@ let selectedCarrier = "sagawa";
 let selectedAction = "navigate";
 const actionBtns = document.querySelectorAll(".action-btn");
 const urlOutput = document.getElementById("urlOutput");
+const statusOutput = document.getElementById("statusOutput");
 const urlDisplay = document.getElementById("urlDisplay");
 const copyBtn = document.getElementById("copyBtn");
 const trackingInput = document.getElementById("trackingNumber");
@@ -16,8 +19,10 @@ const errorMessage = document.getElementById("errorMessage");
 const toggleBtns = document.querySelectorAll(".toggle-btn");
 const savedList = document.getElementById("savedList");
 const savedCount = document.getElementById("savedCount");
+const detectBadge = document.getElementById("detectBadge");
 
 const MAX_SAVED = 8;
+let detectTimeout = null;
 
 function renderSaved() {
   const savedItems = getSavedItems();
@@ -44,7 +49,7 @@ function renderSaved() {
     el.addEventListener("click", (e) => {
       if (e.target.classList.contains("saved-item-delete")) return;
       const idx = parseInt(el.dataset.index);
-      const item = savedItems[idx];
+      const item = getSavedItems()[idx];
       const url = buildUrl(item.carrier, item.trackingNumber.replace(/-/g, ""));
       window.open(url, "_blank");
     });
@@ -66,6 +71,7 @@ toggleBtns.forEach((btn) => {
     btn.classList.add("active");
     selectedCarrier = btn.dataset.carrier;
     errorMessage.classList.remove("show");
+    if (detectBadge) detectBadge.classList.remove("show");
   });
 });
 
@@ -75,11 +81,11 @@ actionBtns.forEach((btn) => {
     btn.classList.add("active");
     selectedAction = btn.dataset.action;
     urlOutput.classList.remove("show");
+    if (statusOutput) statusOutput.classList.remove("show");
   });
 });
 
 copyBtn.addEventListener("click", async () => {
-  // innerHTMLなのでタグを除いたテキストのみを取得
   const url = urlDisplay.querySelector("a")?.href || urlDisplay.textContent.trim();
   try {
     await navigator.clipboard.writeText(url);
@@ -94,15 +100,13 @@ copyBtn.addEventListener("click", async () => {
   }
 });
 
-checkBtn.addEventListener("click", () => {
+checkBtn.addEventListener("click", async () => {
   const trackingNumber = trackingInput.value.trim();
-
   if (!trackingNumber) {
     errorMessage.classList.add("show");
     trackingInput.focus();
     return;
   }
-
   errorMessage.classList.remove("show");
   const cleanedNumber = trackingNumber.replace(/-/g, "");
 
@@ -115,29 +119,183 @@ checkBtn.addEventListener("click", () => {
   }
 
   const memo = memoInput.value.trim();
-  const url = buildUrl(selectedCarrier, cleanedNumber);
-
   addSavedItem(selectedCarrier, memo, trackingNumber, MAX_SAVED);
   renderSaved();
 
   if (selectedAction === "navigate") {
+    const url = buildUrl(selectedCarrier, cleanedNumber);
     window.open(url, "_blank");
     urlOutput.classList.remove("show");
+    if (statusOutput) statusOutput.classList.remove("show");
   } else if (selectedAction === "show-url") {
+    const url = buildUrl(selectedCarrier, cleanedNumber);
     urlDisplay.innerHTML = formatUrlDisplay(selectedCarrier, trackingNumber, url);
     urlOutput.classList.add("show");
+    if (statusOutput) statusOutput.classList.remove("show");
+  } else if (selectedAction === "check-status") {
+    urlOutput.classList.remove("show");
+    await checkStatus(selectedCarrier, cleanedNumber, trackingNumber);
   }
+});
+
+async function checkStatus(carrier, cleanedNumber, displayNumber) {
+  if (!statusOutput) return;
+
+  statusOutput.innerHTML = `
+    <div class="status-header">
+      <span class="status-label">📡 ステータス確認中...</span>
+    </div>
+    <div class="status-body">
+      <div class="status-loading">照会しています…</div>
+    </div>
+  `;
+  statusOutput.classList.add("show");
+
+  const result = await fetchStatus(carrier, cleanedNumber);
+
+  if (result.notReady) {
+    statusOutput.innerHTML = `
+      <div class="status-header">
+        <span class="status-label">📡 ステータス確認</span>
+      </div>
+      <div class="status-body">
+        <div class="status-unavailable">
+          ステータス確認機能は準備中です。<br>
+          代わりに「ページ遷移」で追跡サイトを開いてください。
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (result.error) {
+    statusOutput.innerHTML = `
+      <div class="status-header">
+        <span class="status-label">📡 ステータス確認</span>
+        <span class="status-carrier">${getCarrierLabel(carrier)}</span>
+      </div>
+      <div class="status-body">
+        <div class="status-error">エラー: ${result.error}</div>
+      </div>
+    `;
+    return;
+  }
+
+  if (carrier === "japanpost") {
+    renderJapanPostStatus(result, displayNumber);
+  } else {
+    statusOutput.innerHTML = `
+      <div class="status-header">
+        <span class="status-label">📡 ステータス確認</span>
+        <span class="status-carrier">${getCarrierLabel(carrier)}</span>
+      </div>
+      <div class="status-body">
+        <div class="status-unavailable">この配送業者はまだ対応していません</div>
+      </div>
+    `;
+  }
+}
+
+function renderJapanPostStatus(result, displayNumber) {
+  const info = result.info || {};
+  const history = result.history || [];
+
+  if (result.status === "error") {
+    statusOutput.innerHTML = `
+      <div class="status-header">
+        <span class="status-label">📡 ステータス確認</span>
+        <span class="status-carrier">🏣 日本郵便</span>
+      </div>
+      <div class="status-body">
+        <div class="status-error">${result.message}</div>
+      </div>
+    `;
+    return;
+  }
+
+  let historyHtml = "";
+  if (history.length > 0) {
+    historyHtml = `
+      <details class="status-history">
+        <summary>📋 履歴（${history.length}件）</summary>
+        ${history
+          .map(
+            (h) => `
+          <div class="status-history-item">
+            <span class="history-date">${h.date || ""} ${h.time || ""}</span>
+            <span class="history-status">${h.status || ""}</span>
+            <span class="history-office">${h.office || ""}</span>
+          </div>
+        `,
+          )
+          .join("")}
+      </details>
+    `;
+  }
+
+  statusOutput.innerHTML = `
+    <div class="status-header">
+      <span class="status-label">📡 ステータス確認</span>
+      <span class="status-carrier">🏣 日本郵便</span>
+    </div>
+    <div class="status-body">
+      ${info.status ? `
+        <div class="status-main">
+          <span class="status-marker">●</span>
+          <span class="status-text">${info.status}</span>
+        </div>
+        <div class="status-details">
+          ${info.date ? `<span>📅 ${info.date}</span>` : ""}
+          ${info.type ? `<span>📦 ${info.type}</span>` : ""}
+          ${info.office ? `<span>🏢 ${info.office}</span>` : ""}
+          ${info.prefecture ? `<span>📍 ${info.prefecture}</span>` : ""}
+        </div>
+      ` : `
+        <div class="status-main">
+          <span class="status-text">ステータス情報が取得できませんでした</span>
+        </div>
+      `}
+    </div>
+    ${historyHtml}
+    <div class="status-footer">
+      <a href="${buildUrl("japanpost", displayNumber.replace(/-/g, ""))}" target="_blank" class="status-link">
+        日本郵便のサイトで開く →
+      </a>
+    </div>
+  `;
+}
+
+// ── Auto-detection on input ──
+trackingInput.addEventListener("input", (e) => {
+  errorMessage.classList.remove("show");
+  // Allow digits, letters (for JP post alpha format), and hyphens
+  e.target.value = e.target.value.replace(/[^0-9A-Za-z-]/g, "");
+
+  // Debounced detection
+  clearTimeout(detectTimeout);
+  detectTimeout = setTimeout(() => {
+    const val = e.target.value.trim();
+    const detected = detectCarrier(val);
+    if (detected) {
+      toggleBtns.forEach((b) => b.classList.remove("active"));
+      toggleBtns.forEach((b) => {
+        if (b.dataset.carrier === detected) {
+          b.classList.add("active");
+          selectedCarrier = detected;
+        }
+      });
+      if (detectBadge) {
+        const cfg = CARRIERS[detected];
+        detectBadge.textContent = `${cfg.icon} ${cfg.label}を検出`;
+        detectBadge.classList.add("show");
+        setTimeout(() => detectBadge.classList.remove("show"), 3000);
+      }
+    }
+  }, 400);
 });
 
 trackingInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
-    checkBtn.click();
-  }
-});
-
-trackingInput.addEventListener("input", (e) => {
-  errorMessage.classList.remove("show");
-  e.target.value = e.target.value.replace(/[^0-9-]/g, "");
+  if (e.key === "Enter") checkBtn.click();
 });
 
 renderSaved();
