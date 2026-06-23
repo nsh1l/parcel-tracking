@@ -13,43 +13,34 @@ export function getTrackingLabel(carrier) {
 }
 
 /**
- * Build the metadata suffix string from optional fields.
+ * Build the metadata infix string from optional fields (between carrier and tracking number).
  * Format: | 指定日・時間帯 | XXサイズ | XX個口
  * Empty fields are omitted. Returns empty string if all fields empty.
  */
-export function buildMetaSuffix(dateSlot, size, itemCount) {
+export function buildMetaInfix(dateSlot, size, itemCount) {
   const parts = [];
   if (dateSlot) parts.push(dateSlot);
   if (size) parts.push(`${size}サイズ`);
   if (itemCount) parts.push(`${itemCount}個口`);
   if (parts.length === 0) return "";
-  return " | " + parts.join(" | ");
-}
-
-/**
- * Build the direction prefix: "発送 | " or "受取 | " or "".
- */
-export function buildDirectionPrefix(direction) {
-  if (direction === "shipping") return "発送 | ";
-  if (direction === "receiving") return "受取 | ";
-  return "";
+  return " | " + parts.join(" | ") + " | ";
 }
 
 /**
  * Build the full plain-text line for "テキスト全体をコピー".
- * Format: CarrierLabel | お問合せNo. XXXXXXXXXX | 指定日・時間帯 | XXサイズ | XX個口
+ * Format: CarrierLabel | 指定日・時間帯 | XXサイズ | XX個口 | お問合せNo. XXXXXXXXXX
  *          URL
  */
 export function buildPlainText(direction, dateSlot, size, itemCount, carrier, trackingNumber, url) {
-  const suffix = buildMetaSuffix(dateSlot, size, itemCount);
+  const infix = buildMetaInfix(dateSlot, size, itemCount);
   const carrierLabel = getCarrierLabel(carrier);
   const label = getTrackingLabel(carrier);
-  return `${carrierLabel} | ${label} ${trackingNumber}${suffix}\n${url}`;
+  return `${carrierLabel}${infix}${label} ${trackingNumber}\n${url}`;
 }
 
 export function formatUrlDisplay(carrier, trackingNumber, url, direction = "", dateSlot = "", size = "", itemCount = "") {
-  const suffix = buildMetaSuffix(dateSlot, size, itemCount);
+  const infix = buildMetaInfix(dateSlot, size, itemCount);
   const carrierLabel = getCarrierLabel(carrier);
   const label = getTrackingLabel(carrier);
-  return `<span style="color: black;">${carrierLabel} | ${label} ${trackingNumber}${suffix} <br></span><a href="${url}" target="_blank" style="color: blue; text-decoration: underline;">${url}</a>`;
+  return `<span style="color: black;">${carrierLabel}${infix}${label} ${trackingNumber} <br></span><a href="${url}" target="_blank" style="color: blue; text-decoration: underline;">${url}</a>`;
 }
