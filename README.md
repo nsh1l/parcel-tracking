@@ -78,7 +78,7 @@ parcel-tracking/
 ├── carrier.js          # 配送業者定義・URL 生成ロジック
 ├── detector.js         # 配送番号からの業者自動検出
 ├── validator.js        # 入力形式バリデーション
-├── url-builder.js      # 表示用 URL 構築・テキスト生成
+├── url-builder.js      # URL 構築・キャリアラベル・フォーマッター
 ├── storage.js          # LocalStorage 保存・管理
 ├── scraper.js          # Cloudflare Worker 経由のステータス取得
 └── workers/

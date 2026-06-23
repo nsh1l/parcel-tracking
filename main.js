@@ -2,7 +2,7 @@ import { CARRIERS } from "./carrier.js";
 import { detectCarrier } from "./detector.js";
 import { fetchStatus } from "./scraper.js";
 import { getSavedItems, addSavedItem, removeSavedItem } from "./storage.js";
-import { buildUrl, getCarrierLabel, formatUrlDisplay, buildPlainText } from "./url-builder.js";
+import { buildUrl, carrierLabel, format } from "./url-builder.js";
 import { validateTrackingNumber } from "./validator.js";
 
 let selectedCarrier = "sagawa";
@@ -43,7 +43,7 @@ function renderSaved() {
     <div class="saved-item ${item.direction === "receiving" ? "saved-item-receiving" : "saved-item-shipping"}" data-index="${i}">
       <span class="saved-item-direction">${item.direction === "receiving" ? "📥" : "📤"}</span>
       <div class="saved-item-text">
-        <span class="saved-item-carrier">${getCarrierLabel(item.carrier)}</span>
+        <span class="saved-item-carrier">${carrierLabel(item.carrier)}</span>
         ${item.memo ? ` ${item.memo}` : ""} - ${item.trackingNumber}
       </div>
       <button class="saved-item-delete" data-index="${i}">✕</button>
@@ -117,15 +117,13 @@ copyBtn.addEventListener("click", async () => {
 
 copyTextBtn.addEventListener("click", async () => {
   const url = urlDisplay.querySelector("a")?.href || urlDisplay.textContent.trim();
-  const text = buildPlainText(
-    selectedDirection,
-    dateSlotInput.value.trim(),
-    sizeInput.value.trim(),
-    itemCountInput.value.trim(),
-    selectedCarrier,
-    trackingInput.value.trim(),
-    url,
-  );
+  const text = format({
+    carrier: selectedCarrier,
+    number: trackingInput.value.trim(),
+    dateSlot: dateSlotInput.value.trim(),
+    size: sizeInput.value.trim(),
+    itemCount: itemCountInput.value.trim(),
+  });
   try {
     await navigator.clipboard.writeText(text);
     copyTextBtn.textContent = "コピーしました！";
@@ -168,15 +166,14 @@ checkBtn.addEventListener("click", async () => {
     if (statusOutput) statusOutput.classList.remove("show");
   } else if (selectedAction === "show-url") {
     const url = buildUrl(selectedCarrier, cleanedNumber);
-    urlDisplay.innerHTML = formatUrlDisplay(
-      selectedCarrier,
-      trackingNumber,
-      url,
-      selectedDirection,
-      dateSlotInput.value.trim(),
-      sizeInput.value.trim(),
-      itemCountInput.value.trim(),
-    );
+    urlDisplay.innerHTML = format({
+      carrier: selectedCarrier,
+      number: trackingNumber,
+      dateSlot: dateSlotInput.value.trim(),
+      size: sizeInput.value.trim(),
+      itemCount: itemCountInput.value.trim(),
+      format: "html",
+    });
     urlOutput.classList.add("show");
     if (statusOutput) statusOutput.classList.remove("show");
   } else if (selectedAction === "check-status") {
@@ -219,7 +216,7 @@ async function checkStatus(carrier, cleanedNumber, displayNumber) {
     statusOutput.innerHTML = `
       <div class="status-header">
         <span class="status-label">📡 ステータス確認</span>
-        <span class="status-carrier">${getCarrierLabel(carrier)}</span>
+        <span class="status-carrier">${carrierLabel(carrier)}</span>
       </div>
       <div class="status-body">
         <div class="status-error">エラー: ${result.error}</div>
@@ -264,7 +261,7 @@ function renderGenericStatus(result, carrier, displayNumber) {
   statusOutput.innerHTML = `
     <div class="status-header">
       <span class="status-label">📡 ステータス確認</span>
-      <span class="status-carrier">${icon} ${getCarrierLabel(carrier)}</span>
+      <span class="status-carrier">${icon} ${carrierLabel(carrier)}</span>
     </div>
     <div class="status-body">
       <div class="status-main">
@@ -284,7 +281,7 @@ function renderGenericStatus(result, carrier, displayNumber) {
     ${historyHtml}
     <div class="status-footer">
       <a href="${buildUrl(carrier, displayNumber.replace(/-/g, ""))}" target="_blank" class="status-link">
-        ${getCarrierLabel(carrier)}のサイトで開く →
+        ${carrierLabel(carrier)}のサイトで開く →
       </a>
     </div>
   `;
