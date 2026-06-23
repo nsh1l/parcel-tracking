@@ -1,3 +1,20 @@
+/* ── Color Palette (Coolors) ── */
+:root {
+    --bg: #ADA097;
+    --card-bg: #FAF8F5;
+    --primary: #3E484E;
+    --secondary: #948D4F;
+    --accent: #8EA8C0;
+    --dark: #67573C;
+    --text: #3E484E;
+    --text-muted: #67573C;
+    --border: #C4BCB3;
+    --border-light: #D4CEC8;
+    --light-bg: #EDE9E5;
+    --error: #C0392B;
+    --shadow: rgba(62, 72, 78, 0.25);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -8,7 +25,7 @@ body {
     font-family:
         -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans",
         "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
-    background: ghostwhite;
+    background: var(--bg);
     min-height: 100vh;
     min-height: 100dvh;
     display: grid;
@@ -21,17 +38,17 @@ body {
 }
 
 .input-container {
-    background: white;
+    background: var(--card-bg);
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px var(--shadow);
     padding: 40px;
     max-width: auto;
     width: 1fr;
 }
 .output-container {
-    background: white;
+    background: var(--card-bg);
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px var(--shadow);
     padding: 40px;
     max-width: auto;
     width: 2fr;
@@ -39,14 +56,14 @@ body {
 
 h1 {
     text-align: center;
-    color: #333;
+    color: var(--text);
     margin-bottom: 10px;
     font-size: 28px;
 }
 
 .subtitle {
     text-align: center;
-    color: #666;
+    color: var(--text-muted);
     margin-bottom: 30px;
     font-size: 14px;
 }
@@ -58,7 +75,7 @@ h1 {
 label {
     display: block;
     margin-bottom: 8px;
-    color: #555;
+    color: var(--text-muted);
     font-weight: 600;
     font-size: 14px;
 }
@@ -66,17 +83,19 @@ label {
 input[type="text"] {
     width: 100%;
     padding: 14px 16px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border);
     border-radius: 10px;
     font-size: 16px;
     transition: all 0.3s;
     font-family: inherit;
+    background: var(--card-bg);
+    color: var(--text);
 }
 
 input[type="text"]:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(142, 168, 192, 0.15);
 }
 
 /* ── Detail grid (date/slot/size/count) ── */
@@ -105,32 +124,32 @@ input[type="text"]:focus {
 
 .direction-btn {
     padding: 12px;
-    border: 2px solid #e0e0e0;
-    background: white;
+    border: 2px solid var(--border);
+    background: var(--card-bg);
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s;
     font-size: 14px;
     font-weight: 600;
-    color: #666;
+    color: var(--text-muted);
     text-align: center;
     min-height: 44px;
 }
 
 .direction-btn:hover {
-    border-color: #667eea;
-    background: #f8f9ff;
+    border-color: var(--accent);
+    background: var(--light-bg);
 }
 
 .direction-btn.active[data-direction="shipping"] {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    border-color: #f59e0b;
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--dark) 100%);
+    border-color: var(--secondary);
     color: white;
 }
 
 .direction-btn.active[data-direction="receiving"] {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    border-color: #3b82f6;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+    border-color: var(--accent);
     color: white;
 }
 
@@ -145,15 +164,15 @@ input[type="text"]:focus {
 }
 
 .copy-text-btn {
-    background: #10b981 !important;
+    background: var(--secondary) !important;
 }
 
 .copy-text-btn:hover {
-    background: #059669 !important;
+    background: var(--dark) !important;
 }
 
 .copy-text-btn.copied {
-    background: #667eea !important;
+    background: var(--primary) !important;
 }
 
 .toggle-container {
@@ -172,25 +191,25 @@ input[type="text"]:focus {
 
 .action-btn {
     padding: 12px;
-    border: 2px solid #e0e0e0;
-    background: white;
+    border: 2px solid var(--border);
+    background: var(--card-bg);
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s;
     font-size: 14px;
     font-weight: 600;
-    color: #666;
+    color: var(--text-muted);
     text-align: center;
 }
 
 .action-btn:hover {
-    border-color: #667eea;
-    background: #f8f9ff;
+    border-color: var(--accent);
+    background: var(--light-bg);
 }
 
 .action-btn.active {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    border-color: #10b981;
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--dark) 100%);
+    border-color: var(--secondary);
     color: white;
 }
 
@@ -198,9 +217,9 @@ input[type="text"]:focus {
     display: none;
     margin-bottom: 24px;
     padding: 16px;
-    background: #f8f9ff;
+    background: var(--light-bg);
     border-radius: 10px;
-    border: 2px solid #667eea;
+    border: 2px solid var(--accent);
 }
 
 .url-output.show {
@@ -209,25 +228,25 @@ input[type="text"]:focus {
 
 .url-label {
     font-size: 13px;
-    color: #666;
+    color: var(--text-muted);
     margin-bottom: 8px;
     font-weight: 600;
 }
 
 .url-display {
-    background: white;
+    background: var(--card-bg);
     padding: 12px;
     border-radius: 6px;
     word-break: break-all;
     font-size: 13px;
-    color: #667eea;
+    color: var(--accent);
     margin-bottom: 12px;
 }
 
 .copy-btn {
     width: 100%;
     padding: 10px;
-    background: #667eea;
+    background: var(--primary);
     color: white;
     border: none;
     border-radius: 6px;
@@ -238,11 +257,11 @@ input[type="text"]:focus {
 }
 
 .copy-btn:hover {
-    background: #5568d3;
+    background: var(--dark);
 }
 
 .copy-btn.copied {
-    background: #10b981;
+    background: var(--secondary);
 }
 
 .toggle-buttons {
@@ -254,14 +273,14 @@ input[type="text"]:focus {
 
 .toggle-btn {
     padding: 8px;
-    border: 2px solid #e0e0e0;
-    background: white;
+    border: 2px solid var(--border);
+    background: var(--card-bg);
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.3s;
     font-size: 12px;
     font-weight: 600;
-    color: #666;
+    color: var(--text-muted);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -269,13 +288,13 @@ input[type="text"]:focus {
 }
 
 .toggle-btn:hover {
-    border-color: #667eea;
-    background: #f8f9ff;
+    border-color: var(--accent);
+    background: var(--light-bg);
 }
 
 .toggle-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: #667eea;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+    border-color: var(--primary);
     color: white;
 }
 
@@ -286,7 +305,7 @@ input[type="text"]:focus {
 .check-btn {
     width: 100%;
     padding: 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -294,12 +313,12 @@ input[type="text"]:focus {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(62, 72, 78, 0.4);
 }
 
 .check-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 6px 20px rgba(62, 72, 78, 0.5);
 }
 
 .check-btn:active {
@@ -307,13 +326,13 @@ input[type="text"]:focus {
 }
 
 .check-btn:disabled {
-    background: #ccc;
+    background: var(--border);
     cursor: not-allowed;
     box-shadow: none;
 }
 
 .error-message {
-    color: #e53e3e;
+    color: var(--error);
     font-size: 13px;
     margin-top: 8px;
     display: none;
@@ -325,7 +344,7 @@ input[type="text"]:focus {
 
 /* 保存済み追跡番号 */
 .saved-section {
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border);
     border-radius: 10px;
     overflow: hidden;
 }
@@ -335,22 +354,22 @@ input[type="text"]:focus {
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px;
-    background: #f8f9ff;
-    border-bottom: 2px solid #e0e0e0;
+    background: var(--light-bg);
+    border-bottom: 2px solid var(--border);
 }
 
 .saved-title {
     font-size: 14px;
     font-weight: 700;
-    color: #555;
+    color: var(--text-muted);
 }
 
 .saved-count {
     font-size: 12px;
     font-weight: 600;
-    color: #667eea;
-    background: white;
-    border: 1px solid #667eea;
+    color: var(--primary);
+    background: var(--card-bg);
+    border: 1px solid var(--primary);
     border-radius: 20px;
     padding: 2px 10px;
 }
@@ -364,7 +383,7 @@ input[type="text"]:focus {
 
 .saved-empty {
     text-align: center;
-    color: #aaa;
+    color: var(--border);
     font-size: 13px;
     padding: 16px;
 }
@@ -374,20 +393,20 @@ input[type="text"]:focus {
     align-items: center;
     gap: 8px;
     padding: 10px 12px;
-    background: white;
-    border: 1.5px solid #e0e0e0;
-    border-left: 4px solid #e0e0e0;
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-left: 4px solid var(--border);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .saved-item-shipping {
-    border-left-color: #f59e0b;
+    border-left-color: var(--secondary);
 }
 
 .saved-item-receiving {
-    border-left-color: #3b82f6;
+    border-left-color: var(--accent);
 }
 
 .saved-item-direction {
@@ -396,29 +415,29 @@ input[type="text"]:focus {
 }
 
 .saved-item:hover {
-    border-color: #667eea;
-    background: #f8f9ff;
+    border-color: var(--accent);
+    background: var(--light-bg);
 }
 
 .saved-item-text {
     flex: 1;
     font-size: 13px;
-    color: #333;
+    color: var(--text);
     word-break: break-all;
     line-height: 1.4;
 }
 
 .saved-item-carrier {
     font-weight: 700;
-    color: #667eea;
+    color: var(--primary);
 }
 
 .saved-item-delete {
     padding: 4px 8px;
     background: none;
-    border: 1.5px solid #e0e0e0;
+    border: 1.5px solid var(--border);
     border-radius: 6px;
-    color: #aaa;
+    color: var(--border);
     font-size: 12px;
     cursor: pointer;
     transition: all 0.2s;
@@ -426,9 +445,9 @@ input[type="text"]:focus {
 }
 
 .saved-item-delete:hover {
-    border-color: #e53e3e;
-    color: #e53e3e;
-    background: #fff5f5;
+    border-color: var(--error);
+    color: var(--error);
+    background: rgba(192, 57, 43, 0.05);
 }
 
 /* ── Detect badge ── */
@@ -436,8 +455,8 @@ input[type="text"]:focus {
     display: none;
     margin-top: 6px;
     padding: 4px 12px;
-    background: #e8f5e9;
-    color: #2e7d32;
+    background: rgba(148, 141, 79, 0.15);
+    color: var(--dark);
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
@@ -453,9 +472,9 @@ input[type="text"]:focus {
     display: none;
     margin-bottom: 24px;
     padding: 16px;
-    background: #f8f9ff;
+    background: var(--light-bg);
     border-radius: 10px;
-    border: 2px solid #667eea;
+    border: 2px solid var(--accent);
 }
 .status-output.show {
     display: block;
@@ -468,16 +487,16 @@ input[type="text"]:focus {
 }
 .status-label {
     font-size: 13px;
-    color: #666;
+    color: var(--text-muted);
     font-weight: 700;
 }
 .status-carrier {
     font-size: 12px;
     font-weight: 600;
-    color: #667eea;
+    color: var(--primary);
 }
 .status-body {
-    background: white;
+    background: var(--card-bg);
     border-radius: 8px;
     padding: 12px;
     margin-bottom: 8px;
@@ -489,41 +508,41 @@ input[type="text"]:focus {
     margin-bottom: 6px;
 }
 .status-marker {
-    color: #10b981;
+    color: var(--secondary);
     font-size: 12px;
 }
 .status-text {
     font-size: 15px;
     font-weight: 700;
-    color: #333;
+    color: var(--text);
 }
 .status-details {
     display: flex;
     flex-wrap: wrap;
     gap: 8px 16px;
     font-size: 12px;
-    color: #666;
+    color: var(--text-muted);
 }
 .status-loading {
     text-align: center;
-    color: #999;
+    color: var(--border);
     font-size: 13px;
     padding: 8px;
 }
 .status-error {
-    color: #e53e3e;
+    color: var(--error);
     font-size: 13px;
     font-weight: 600;
 }
 .status-unavailable {
     text-align: center;
-    color: #999;
+    color: var(--border);
     font-size: 12px;
     line-height: 1.6;
 }
 .status-history {
     margin-top: 8px;
-    background: white;
+    background: var(--card-bg);
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 12px;
@@ -531,30 +550,30 @@ input[type="text"]:focus {
 .status-history summary {
     cursor: pointer;
     font-weight: 600;
-    color: #667eea;
+    color: var(--accent);
     padding: 4px 0;
 }
 .status-history-item {
     display: flex;
     gap: 12px;
     padding: 4px 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-light);
     font-size: 12px;
 }
 .status-history-item:last-child {
     border-bottom: none;
 }
 .history-date {
-    color: #999;
+    color: var(--border);
     min-width: 100px;
 }
 .history-status {
-    color: #333;
+    color: var(--text);
     font-weight: 600;
     flex: 1;
 }
 .history-office {
-    color: #666;
+    color: var(--text-muted);
 }
 .status-footer {
     text-align: right;
@@ -562,7 +581,7 @@ input[type="text"]:focus {
 }
 .status-link {
     font-size: 12px;
-    color: #667eea;
+    color: var(--accent);
     text-decoration: underline;
 }
 
