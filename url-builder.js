@@ -18,7 +18,7 @@ function trackingLabel(carrier) {
 
 function buildMetaMiddle(dateSlot, size, itemCount) {
   const parts = [];
-  if (dateSlot) parts.push(dateSlot);
+  if (dateSlot) parts.push(`${dateSlot}着`);
   if (size) parts.push(`${size}サイズ`);
   if (itemCount) parts.push(`${itemCount}個口`);
   if (parts.length === 0) return "";
@@ -39,7 +39,7 @@ function buildMetaMiddle(dateSlot, size, itemCount) {
  * @param {"plain"|"html"} [record.format="plain"] - output format
  * @returns {string}
  *
- * Plain:  "佐川急便 | 6/25 午前 | 80サイズ | 2個口 | お問合せNo. 123456789012\nhttps://..."
+ * Plain:  "佐川急便 | 6/25 午前着 | 80サイズ | 2個口 | お問合せNo. 123456789012\nhttps://..."
  * HTML:   '<span style="color: black;">佐川急便 | ... <br></span><a href="..." ...>...</a>'
  */
 export function format(record) {
