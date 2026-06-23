@@ -22,8 +22,8 @@ export function buildMetaPrefix(direction, dateSlot, size, itemCount) {
   if (direction === "shipping") parts.push("発送");
   else if (direction === "receiving") parts.push("受取");
   if (dateSlot) parts.push(dateSlot);
-  if (size) parts.push(size);
-  if (itemCount) parts.push(itemCount);
+  if (size) parts.push(`${size}サイズ`);
+  if (itemCount) parts.push(`${itemCount}個口`);
   if (parts.length === 0) return "";
   return parts.join(" | ") + " | ";
 }

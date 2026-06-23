@@ -323,4 +323,11 @@ trackingInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") checkBtn.click();
 });
 
+// ── Numeric-only inputs for size & itemCount ──
+[sizeInput, itemCountInput].forEach((input) => {
+  input.addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/[^0-9]/g, "");
+  });
+});
+
 renderSaved();
