@@ -6,7 +6,7 @@ export function saveItems(items) {
   localStorage.setItem("savedTrackings", JSON.stringify(items));
 }
 
-export function addSavedItem(carrier, memo, trackingNumber, maxSaved = 8) {
+export function addSavedItem(carrier, memo, trackingNumber, maxSaved = 8, direction = "shipping") {
   const items = getSavedItems();
   
   const exists = items.some(
@@ -17,7 +17,7 @@ export function addSavedItem(carrier, memo, trackingNumber, maxSaved = 8) {
   if (items.length >= maxSaved) {
     items.shift();
   }
-  items.push({ carrier, memo, trackingNumber });
+  items.push({ carrier, memo, trackingNumber, direction });
   saveItems(items);
   return items;
 }

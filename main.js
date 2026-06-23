@@ -40,7 +40,8 @@ function renderSaved() {
   savedList.innerHTML = savedItems
     .map(
       (item, i) => `
-    <div class="saved-item" data-index="${i}">
+    <div class="saved-item ${item.direction === "receiving" ? "saved-item-receiving" : "saved-item-shipping"}" data-index="${i}">
+      <span class="saved-item-direction">${item.direction === "receiving" ? "📥" : "📤"}</span>
       <div class="saved-item-text">
         <span class="saved-item-carrier">${getCarrierLabel(item.carrier)}</span>
         ${item.memo ? ` ${item.memo}` : ""} - ${item.trackingNumber}
@@ -157,7 +158,7 @@ checkBtn.addEventListener("click", async () => {
   }
 
   const memo = memoInput.value.trim();
-  addSavedItem(selectedCarrier, memo, trackingNumber, MAX_SAVED);
+  addSavedItem(selectedCarrier, memo, trackingNumber, MAX_SAVED, selectedDirection);
   renderSaved();
 
   if (selectedAction === "navigate") {
