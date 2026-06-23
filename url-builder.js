@@ -13,36 +13,45 @@ export function getTrackingLabel(carrier) {
 }
 
 /**
- * Build the metadata prefix string from optional fields.
- * Format: [発送|受取] 指定日・時間帯 | サイズ | 個口数 |
+ * Build the metadata suffix string from optional fields.
+ * Format: | 指定日・時間帯 | XXサイズ | XX個口
  * Empty fields are omitted. Returns empty string if all fields empty.
  */
-export function buildMetaPrefix(direction, dateSlot, size, itemCount) {
+export function buildMetaSuffix(dateSlot, size, itemCount) {
   const parts = [];
-  if (direction === "shipping") parts.push("発送");
-  else if (direction === "receiving") parts.push("受取");
   if (dateSlot) parts.push(dateSlot);
   if (size) parts.push(`${size}サイズ`);
   if (itemCount) parts.push(`${itemCount}個口`);
   if (parts.length === 0) return "";
-  return parts.join(" | ") + " | ";
+  return " | " + parts.join(" | ");
+}
+
+/**
+ * Build the direction prefix: "発送 | " or "受取 | " or "".
+ */
+export function buildDirectionPrefix(direction) {
+  if (direction === "shipping") return "発送 | ";
+  if (direction === "receiving") return "受取 | ";
+  return "";
 }
 
 /**
  * Build the full plain-text line for "テキスト全体をコピー".
- * Format: [発送|受取] 指定日・時間帯 | サイズ | 個口数 | CarrierLabel | お問合せNo. XXXXXXXXXX
+ * Format: [発送|受取] CarrierLabel | お問合せNo. XXXXXXXXXX | 指定日・時間帯 | XXサイズ | XX個口
  *          URL
  */
 export function buildPlainText(direction, dateSlot, size, itemCount, carrier, trackingNumber, url) {
-  const prefix = buildMetaPrefix(direction, dateSlot, size, itemCount);
+  const dirPrefix = buildDirectionPrefix(direction);
+  const suffix = buildMetaSuffix(dateSlot, size, itemCount);
   const carrierLabel = getCarrierLabel(carrier);
   const label = getTrackingLabel(carrier);
-  return `${prefix}${carrierLabel} | ${label} ${trackingNumber}\n${url}`;
+  return `${dirPrefix}${carrierLabel} | ${label} ${trackingNumber}${suffix}\n${url}`;
 }
 
 export function formatUrlDisplay(carrier, trackingNumber, url, direction = "", dateSlot = "", size = "", itemCount = "") {
-  const prefix = buildMetaPrefix(direction, dateSlot, size, itemCount);
+  const dirPrefix = buildDirectionPrefix(direction);
+  const suffix = buildMetaSuffix(dateSlot, size, itemCount);
   const carrierLabel = getCarrierLabel(carrier);
   const label = getTrackingLabel(carrier);
-  return `<span style="color: black;">${prefix}${carrierLabel} | ${label} ${trackingNumber} <br></span><a href="${url}" target="_blank" style="color: blue; text-decoration: underline;">${url}</a>`;
+  return `<span style="color: black;">${dirPrefix}${carrierLabel} | ${label} ${trackingNumber}${suffix} <br></span><a href="${url}" target="_blank" style="color: blue; text-decoration: underline;">${url}</a>`;
 }
