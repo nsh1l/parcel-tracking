@@ -37,21 +37,19 @@ export function buildDirectionPrefix(direction) {
 
 /**
  * Build the full plain-text line for "テキスト全体をコピー".
- * Format: [発送|受取] CarrierLabel | お問合せNo. XXXXXXXXXX | 指定日・時間帯 | XXサイズ | XX個口
+ * Format: CarrierLabel | お問合せNo. XXXXXXXXXX | 指定日・時間帯 | XXサイズ | XX個口
  *          URL
  */
 export function buildPlainText(direction, dateSlot, size, itemCount, carrier, trackingNumber, url) {
-  const dirPrefix = buildDirectionPrefix(direction);
   const suffix = buildMetaSuffix(dateSlot, size, itemCount);
   const carrierLabel = getCarrierLabel(carrier);
   const label = getTrackingLabel(carrier);
-  return `${dirPrefix}${carrierLabel} | ${label} ${trackingNumber}${suffix}\n${url}`;
+  return `${carrierLabel} | ${label} ${trackingNumber}${suffix}\n${url}`;
 }
 
 export function formatUrlDisplay(carrier, trackingNumber, url, direction = "", dateSlot = "", size = "", itemCount = "") {
-  const dirPrefix = buildDirectionPrefix(direction);
   const suffix = buildMetaSuffix(dateSlot, size, itemCount);
   const carrierLabel = getCarrierLabel(carrier);
   const label = getTrackingLabel(carrier);
-  return `<span style="color: black;">${dirPrefix}${carrierLabel} | ${label} ${trackingNumber}${suffix} <br></span><a href="${url}" target="_blank" style="color: blue; text-decoration: underline;">${url}</a>`;
+  return `<span style="color: black;">${carrierLabel} | ${label} ${trackingNumber}${suffix} <br></span><a href="${url}" target="_blank" style="color: blue; text-decoration: underline;">${url}</a>`;
 }
