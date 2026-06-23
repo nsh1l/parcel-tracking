@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Variant 2 — Split Workspace</title>
+<style>
+:root {
+  --bg: #ADA097;
+  --card-bg: #FAF8F5;
+  --primary: #3E484E;
+  --secondary: #948D4F;
+  --accent: #8EA8C0;
+  --dark: #67573C;
+  --text: #3E484E;
+  --text-muted: #67573C;
+  --border: #C4BCB3;
+  --border-light: #D4CEC8;
+  --light-bg: #EDE9E5;
+  --error: #C0392B;
+  --shadow: rgba(62, 72, 78, 0.12);
+  --radius: 12px;
+  --sidebar-w: 280px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  background: var(--primary);
+  color: rgba(255,255,255,0.9);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+.sidebar h1 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sidebar-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 2px;
+}
+
+/* Carrier list in sidebar */
+.carrier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.carrier-item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.carrier-item:hover {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.95);
+}
+.carrier-item.active {
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-weight: 600;
+}
+.carrier-item .icon {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+/* Saved in sidebar */
+.saved-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.saved-sid-item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.06);
+  font-size: 12px;
+  color: rgba(255,255,255,0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-left: 3px solid transparent;
+}
+.saved-sid-item.shipping { border-left-color: var(--secondary); }
+.saved-sid-item.receiving { border-left-color: var(--accent); }
+.saved-sid-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+.saved-sid-item .carrier {
+  font-weight: 600;
+  color: white;
+}
+.saved-sid-item .num {
+  font-family: "SF Mono", "Menlo", monospace;
+  font-size: 11px;
+  opacity: 0.6;
+  margin-left: auto;
+}
+.saved-sid-empty {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  padding: 8px;
+}
+
+/* ── Main workspace ── */
+.workspace {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.workspace-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.workspace-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+.workspace-carrier-tag {
+  padding: 4px 12px;
+  background: var(--light-bg);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Form card */
+.form-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 4px 20px var(--shadow);
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-row label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.form-row input[type="text"] {
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.form-row input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(142, 168, 192, 0.12);
+}
+.form-row input.mono {
+  font-family: "SF Mono", "Menlo", monospace;
+  letter-spacing: 0.04em;
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+/* Direction + Action */
+.seg-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.seg-controls {
+  display: flex;
+  gap: 0;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.seg-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: var(--card-bg);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  border-right: 1px solid var(--border);
+}
+.seg-btn:last-child { border-right: none; }
+.seg-btn:hover {
+  background: var(--light-bg);
+}
+.seg-btn.active[data-tone="shipping"] {
+  background: var(--secondary);
+  color: white;
+}
+.seg-btn.active[data-tone="receiving"] {
+  background: var(--accent);
+  color: white;
+}
+.seg-btn.active[data-tone="action"] {
+  background: var(--primary);
+  color: white;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* CTA */
+.cta {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.cta:hover { background: var(--dark); }
+
+/* Output area */
+.output-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 4px 20px var(--shadow);
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+.output-card.show { display: flex; }
+
+.output-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.output-display {
+  background: var(--light-bg);
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  word-break: break-all;
+  font-family: "SF Mono", "Menlo", monospace;
+  color: var(--accent);
+}
+.copy-btns {
+  display: flex;
+  gap: 8px;
+}
+.copy-btn {
+  flex: 1;
+  padding: 10px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.copy-btn.secondary {
+  background: var(--secondary);
+}
+
+@media (max-width: 768px) {
+  body {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    max-height: none;
+    padding: 16px;
+  }
+  .workspace {
+    padding: 16px;
+    max-height: none;
+  }
+  .form-grid-3 { grid-template-columns: 1fr; }
+  .form-grid-2 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h1>📦 配送状況確認</h1>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">配送業者</div>
+      <div class="carrier-list">
+        <div class="carrier-item active"><span class="icon">🚚</span>佐川急便</div>
+        <div class="carrier-item"><span class="icon">🐈</span>ヤマト運輸</div>
+        <div class="carrier-item"><span class="icon">🦘</span>西濃運輸</div>
+        <div class="carrier-item"><span class="icon">🌅</span>福山通運</div>
+        <div class="carrier-item"><span class="icon">🦺</span>オカケン</div>
+        <div class="carrier-item"><span class="icon">🛩️</span>DHL</div>
+        <div class="carrier-item"><span class="icon">🌐</span>OCS</div>
+        <div class="carrier-item"><span class="icon">🐼</span>YDH</div>
+        <div class="carrier-item"><span class="icon">🇨🇳</span>SF Express</div>
+        <div class="carrier-item"><span class="icon">🏣</span>日本郵便</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">保存済み 3/8</div>
+      <div class="saved-sidebar">
+        <div class="saved-sid-item shipping">
+          <span>📤</span>
+          <span class="carrier">佐川</span>
+          <span class="num">1234</span>
+        </div>
+        <div class="saved-sid-item receiving">
+          <span>📥</span>
+          <span class="carrier">ヤマト</span>
+          <span class="num">9876</span>
+        </div>
+        <div class="saved-sid-item shipping">
+          <span>📤</span>
+          <span class="carrier">DHL</span>
+          <span class="num">3456</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main workspace -->
+  <main class="workspace">
+    <div class="workspace-header">
+      <div class="workspace-title">新規追跡</div>
+      <div class="workspace-carrier-tag">🚚 佐川急便</div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-row">
+        <label>配送番号</label>
+        <input type="text" class="mono" placeholder="123456789012" autocomplete="off" />
+      </div>
+
+      <div class="form-row">
+        <label>メモ</label>
+        <input type="text" placeholder="品番・発送先など" autocomplete="off" />
+      </div>
+
+      <div class="form-grid-3">
+        <div class="form-row">
+          <label>指定日</label>
+          <input type="text" placeholder="6/25 午前" autocomplete="off" />
+        </div>
+        <div class="form-row">
+          <label>サイズ</label>
+          <input type="text" placeholder="80" inputmode="numeric" />
+        </div>
+        <div class="form-row">
+          <label>個口</label>
+          <input type="text" placeholder="2" inputmode="numeric" />
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="seg-group">
+          <label>荷物区分</label>
+          <div class="seg-controls">
+            <button class="seg-btn active" data-tone="shipping">📤 発送</button>
+            <button class="seg-btn" data-tone="receiving">📥 受取</button>
+          </div>
+        </div>
+        <div class="seg-group">
+          <label>確認方法</label>
+          <div class="seg-controls">
+            <button class="seg-btn active" data-tone="action">遷移</button>
+            <button class="seg-btn" data-tone="action">URL表示</button>
+            <button class="seg-btn" data-tone="action">📡 確認</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="cta">配送状況を確認 →</button>
+    </div>
+
+    <div class="output-card show">
+      <div class="output-label">確認URL</div>
+      <div class="output-display">佐川急便 | お問合せNo. 123456789012<br>https://k2k.sagawa-exp.co.jp/p/web/okurijosearch.do?okurijoNo=123456789012</div>
+      <div class="copy-btns">
+        <button class="copy-btn">URLコピー</button>
+        <button class="copy-btn secondary">テキスト全体コピー</button>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

@@ -8,8 +8,10 @@ import { validateTrackingNumber } from "./validator.js";
 let selectedCarrier = "sagawa";
 let selectedAction = "navigate";
 let selectedDirection = "shipping";
-const actionBtns = document.querySelectorAll(".action-btn");
-const directionBtns = document.querySelectorAll(".direction-btn");
+
+const carrierChips = document.querySelectorAll(".chip[data-carrier]");
+const actionBtns = document.querySelectorAll(".seg-btn[data-action]");
+const directionBtns = document.querySelectorAll(".seg-btn[data-direction]");
 const urlOutput = document.getElementById("urlOutput");
 const statusOutput = document.getElementById("statusOutput");
 const urlDisplay = document.getElementById("urlDisplay");
@@ -22,13 +24,16 @@ const sizeInput = document.getElementById("size");
 const itemCountInput = document.getElementById("itemCount");
 const checkBtn = document.getElementById("checkBtn");
 const errorMessage = document.getElementById("errorMessage");
-const toggleBtns = document.querySelectorAll(".toggle-btn");
 const savedList = document.getElementById("savedList");
 const savedCount = document.getElementById("savedCount");
 const detectBadge = document.getElementById("detectBadge");
+const detailsToggle = document.getElementById("detailsToggle");
+const detailsBody = document.getElementById("detailsBody");
 
 const MAX_SAVED = 8;
 let detectTimeout = null;
+
+// ── Details collapsible (handled via inline onclick in HTML) ──
 
 function renderSaved() {
   const savedItems = getSavedItems();
@@ -40,13 +45,13 @@ function renderSaved() {
   savedList.innerHTML = savedItems
     .map(
       (item, i) => `
-    <div class="saved-item ${item.direction === "receiving" ? "saved-item-receiving" : "saved-item-shipping"}" data-index="${i}">
-      <span class="saved-item-direction">${item.direction === "receiving" ? "📥" : "📤"}</span>
+    <div class="saved-item ${item.direction === "receiving" ? "receiving" : "shipping"}" data-index="${i}">
+      <span class="saved-item-dir">${item.direction === "receiving" ? "📥" : "📤"}</span>
       <div class="saved-item-text">
         <span class="saved-item-carrier">${carrierLabel(item.carrier)}</span>
         ${item.memo ? ` ${item.memo}` : ""} - ${item.trackingNumber}
       </div>
-      <button class="saved-item-delete" data-index="${i}">✕</button>
+      <button class="saved-item-del" data-index="${i}">✕</button>
     </div>
   `,
     )
@@ -54,7 +59,7 @@ function renderSaved() {
 
   savedList.querySelectorAll(".saved-item").forEach((el) => {
     el.addEventListener("click", (e) => {
-      if (e.target.classList.contains("saved-item-delete")) return;
+      if (e.target.classList.contains("saved-item-del")) return;
       const idx = parseInt(el.dataset.index);
       const item = getSavedItems()[idx];
       const url = buildUrl(item.carrier, item.trackingNumber.replace(/-/g, ""));
@@ -62,7 +67,7 @@ function renderSaved() {
     });
   });
 
-  savedList.querySelectorAll(".saved-item-delete").forEach((btn) => {
+  savedList.querySelectorAll(".saved-item-del").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       const idx = parseInt(btn.dataset.index);
@@ -72,9 +77,10 @@ function renderSaved() {
   });
 }
 
-toggleBtns.forEach((btn) => {
+// ── Carrier chip selection ──
+carrierChips.forEach((btn) => {
   btn.addEventListener("click", () => {
-    toggleBtns.forEach((b) => b.classList.remove("active"));
+    carrierChips.forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
     selectedCarrier = btn.dataset.carrier;
     errorMessage.classList.remove("show");
@@ -82,6 +88,7 @@ toggleBtns.forEach((btn) => {
   });
 });
 
+// ── Action selection ──
 actionBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     actionBtns.forEach((b) => b.classList.remove("active"));
@@ -92,6 +99,7 @@ actionBtns.forEach((btn) => {
   });
 });
 
+// ── Direction selection ──
 directionBtns.forEach((btn) => {
   btn.addEventListener("click", () => {
     directionBtns.forEach((b) => b.classList.remove("active"));
@@ -116,7 +124,6 @@ copyBtn.addEventListener("click", async () => {
 });
 
 copyTextBtn.addEventListener("click", async () => {
-  const url = urlDisplay.querySelector("a")?.href || urlDisplay.textContent.trim();
   const text = format({
     carrier: selectedCarrier,
     number: trackingInput.value.trim(),
@@ -165,7 +172,6 @@ checkBtn.addEventListener("click", async () => {
     urlOutput.classList.remove("show");
     if (statusOutput) statusOutput.classList.remove("show");
   } else if (selectedAction === "show-url") {
-    const url = buildUrl(selectedCarrier, cleanedNumber);
     urlDisplay.innerHTML = format({
       carrier: selectedCarrier,
       number: trackingNumber,
@@ -186,12 +192,8 @@ async function checkStatus(carrier, cleanedNumber, displayNumber) {
   if (!statusOutput) return;
 
   statusOutput.innerHTML = `
-    <div class="status-header">
-      <span class="status-label">📡 ステータス確認中...</span>
-    </div>
-    <div class="status-body">
-      <div class="status-loading">照会しています…</div>
-    </div>
+    <div class="url-label">📡 ステータス確認中...</div>
+    <div class="url-display" style="color: var(--border);">照会しています…</div>
   `;
   statusOutput.classList.add("show");
 
@@ -199,14 +201,10 @@ async function checkStatus(carrier, cleanedNumber, displayNumber) {
 
   if (result.notReady) {
     statusOutput.innerHTML = `
-      <div class="status-header">
-        <span class="status-label">📡 ステータス確認</span>
-      </div>
-      <div class="status-body">
-        <div class="status-unavailable">
-          ステータス確認機能は準備中です。<br>
-          代わりに「ページ遷移」で追跡サイトを開いてください。
-        </div>
+      <div class="url-label">📡 ステータス確認</div>
+      <div class="url-display" style="color: var(--border);">
+        ステータス確認機能は準備中です。<br>
+        代わりに「遷移」で追跡サイトを開いてください。
       </div>
     `;
     return;
@@ -214,13 +212,8 @@ async function checkStatus(carrier, cleanedNumber, displayNumber) {
 
   if (result.error) {
     statusOutput.innerHTML = `
-      <div class="status-header">
-        <span class="status-label">📡 ステータス確認</span>
-        <span class="status-carrier">${carrierLabel(carrier)}</span>
-      </div>
-      <div class="status-body">
-        <div class="status-error">エラー: ${result.error}</div>
-      </div>
+      <div class="url-label">📡 ステータス確認</div>
+      <div class="url-display" style="color: var(--error);">エラー: ${result.error}</div>
     `;
     return;
   }
@@ -241,15 +234,15 @@ function renderGenericStatus(result, carrier, displayNumber) {
   let historyHtml = "";
   if (history.length > 0) {
     historyHtml = `
-      <details class="status-history">
-        <summary>📋 履歴（${history.length}件）</summary>
+      <details class="status-history" style="margin-top: 8px;">
+        <summary style="cursor: pointer; font-weight: 600; color: var(--accent); padding: 4px 0;">📋 履歴（${history.length}件）</summary>
         ${history
           .map(
             (h) => `
-          <div class="status-history-item">
-            <span class="history-date">${h.date || ""} ${h.time || ""}</span>
-            <span class="history-status">${h.status || ""}</span>
-            <span class="history-office">${h.office || ""}</span>
+          <div style="display: flex; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--border-light); font-size: 12px;">
+            <span style="color: var(--border); min-width: 100px;">${h.date || ""} ${h.time || ""}</span>
+            <span style="color: var(--text); font-weight: 600; flex: 1;">${h.status || ""}</span>
+            <span style="color: var(--text-muted);">${h.office || ""}</span>
           </div>
         `,
           )
@@ -259,16 +252,10 @@ function renderGenericStatus(result, carrier, displayNumber) {
   }
 
   statusOutput.innerHTML = `
-    <div class="status-header">
-      <span class="status-label">📡 ステータス確認</span>
-      <span class="status-carrier">${icon} ${carrierLabel(carrier)}</span>
-    </div>
-    <div class="status-body">
-      <div class="status-main">
-        <span class="status-marker">●</span>
-        <span class="status-text">${latest.status || info.status || "—"}</span>
-      </div>
-      <div class="status-details">
+    <div class="url-label">📡 ${icon} ${carrierLabel(carrier)}</div>
+    <div class="url-display" style="color: var(--text);">
+      <div style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">● ${latest.status || info.status || "—"}</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--text-muted);">
         ${info.shipDate ? `<span>📅 出荷日: ${info.shipDate}</span>` : ""}
         ${info.date ? `<span>📅 ${info.date}</span>` : ""}
         ${info.type ? `<span>📦 ${info.type}</span>` : ""}
@@ -279,8 +266,8 @@ function renderGenericStatus(result, carrier, displayNumber) {
       </div>
     </div>
     ${historyHtml}
-    <div class="status-footer">
-      <a href="${buildUrl(carrier, displayNumber.replace(/-/g, ""))}" target="_blank" class="status-link">
+    <div style="text-align: right; margin-top: 8px;">
+      <a href="${buildUrl(carrier, displayNumber.replace(/-/g, ""))}" target="_blank" style="font-size: 12px; color: var(--accent); text-decoration: underline;">
         ${carrierLabel(carrier)}のサイトで開く →
       </a>
     </div>
@@ -290,17 +277,15 @@ function renderGenericStatus(result, carrier, displayNumber) {
 // ── Auto-detection on input ──
 trackingInput.addEventListener("input", (e) => {
   errorMessage.classList.remove("show");
-  // Allow digits, letters (for JP post alpha format), and hyphens
   e.target.value = e.target.value.replace(/[^0-9A-Za-z-]/g, "");
 
-  // Debounced detection
   clearTimeout(detectTimeout);
   detectTimeout = setTimeout(() => {
     const val = e.target.value.trim();
     const detected = detectCarrier(val);
     if (detected) {
-      toggleBtns.forEach((b) => b.classList.remove("active"));
-      toggleBtns.forEach((b) => {
+      carrierChips.forEach((b) => b.classList.remove("active"));
+      carrierChips.forEach((b) => {
         if (b.dataset.carrier === detected) {
           b.classList.add("active");
           selectedCarrier = detected;

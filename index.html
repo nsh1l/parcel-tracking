@@ -8,16 +8,20 @@
         <script type="module" src="./main.js"></script>
     </head>
     <body>
-        <div class="input-container">
-            <h1>📦 配送状況確認</h1>
-            <p class="subtitle">配送番号を入力して状況を確認</p>
+        <div class="panel">
+            <!-- Header -->
+            <div class="header">
+                <h1>📦 配送状況確認</h1>
+                <div class="sub">配送番号を入力して追跡</div>
+            </div>
 
-            <div class="input-group">
-                <label for="trackingNumber">配送番号</label>
+            <!-- Hero: tracking number -->
+            <div class="tracking-hero">
+                <span class="icon">📋</span>
                 <input
                     type="text"
                     id="trackingNumber"
-                    placeholder="配送番号を入力してください"
+                    placeholder="配送番号を入力"
                     autocomplete="off"
                 />
                 <div class="detect-badge" id="detectBadge"></div>
@@ -26,122 +30,102 @@
                 </div>
             </div>
 
-            <div class="input-group">
-                <label for="memo">メモ</label>
+            <!-- Carrier chips -->
+            <div>
+                <div class="section-label">配送業者</div>
+                <div class="chip-row">
+                    <button class="chip active" data-carrier="sagawa">
+                        <span class="chip-icon">🚚</span>佐川急便
+                    </button>
+                    <button class="chip" data-carrier="yamato">
+                        <span class="chip-icon">🐈</span>ヤマト運輸
+                    </button>
+                    <button class="chip" data-carrier="seino">
+                        <span class="chip-icon">🦘</span>西濃運輸
+                    </button>
+                    <button class="chip" data-carrier="fukutsu">
+                        <span class="chip-icon">🌅</span>福山通運
+                    </button>
+                    <button class="chip" data-carrier="okaken">
+                        <span class="chip-icon">🦺</span>オカケン
+                    </button>
+                    <button class="chip" data-carrier="dhl">
+                        <span class="chip-icon">🛩️</span>DHL
+                    </button>
+                    <button class="chip" data-carrier="ocs">
+                        <span class="chip-icon">🌐</span>OCS
+                    </button>
+                    <button class="chip" data-carrier="ydh">
+                        <span class="chip-icon">🐼</span>YDH
+                    </button>
+                    <button class="chip" data-carrier="sfexpress">
+                        <span class="chip-icon">🇨🇳</span>SF Express
+                    </button>
+                    <button class="chip" data-carrier="japanpost">
+                        <span class="chip-icon">🏣</span>日本郵便
+                    </button>
+                </div>
+            </div>
+
+            <!-- Memo -->
+            <input
+                type="text"
+                class="memo-input"
+                id="memo"
+                placeholder="メモ（品番・発送先など）"
+                autocomplete="off"
+            />
+
+            <!-- Collapsible details -->
+            <button class="details-toggle" id="detailsToggle" onclick="this.classList.toggle('open'); document.getElementById('detailsBody').classList.toggle('open');">
+                <span class="arrow">▶</span> 詳細（指定日・サイズ・個口）
+            </button>
+            <div class="details-body" id="detailsBody">
                 <input
                     type="text"
-                    id="memo"
-                    placeholder="品番 (発送先)"
+                    id="dateSlot"
+                    placeholder="6/25 午前"
+                    autocomplete="off"
+                />
+                <input
+                    type="text"
+                    id="size"
+                    placeholder="80"
+                    inputmode="numeric"
+                    autocomplete="off"
+                />
+                <input
+                    type="text"
+                    id="itemCount"
+                    placeholder="2"
+                    inputmode="numeric"
                     autocomplete="off"
                 />
             </div>
 
-            <div class="detail-grid">
-                <div class="input-group">
-                    <label for="dateSlot">指定日・時間帯</label>
-                    <input
-                        type="text"
-                        id="dateSlot"
-                        placeholder="6/25 午前"
-                        autocomplete="off"
-                    />
+            <!-- Direction + Action inline -->
+            <div class="inline-row">
+                <div class="inline-group">
+                    <div class="section-label">荷物区分</div>
+                    <div class="seg-btns">
+                        <button class="seg-btn active" data-direction="shipping">📤 発送</button>
+                        <button class="seg-btn" data-direction="receiving">📥 受取</button>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <label for="size">サイズ</label>
-                    <input
-                        type="text"
-                        id="size"
-                        placeholder="80"
-                        inputmode="numeric"
-                        autocomplete="off"
-                    />
-                </div>
-                <div class="input-group">
-                    <label for="itemCount">個口数</label>
-                    <input
-                        type="text"
-                        id="itemCount"
-                        placeholder="2"
-                        inputmode="numeric"
-                        autocomplete="off"
-                    />
+                <div class="inline-group">
+                    <div class="section-label">確認方法</div>
+                    <div class="seg-btns">
+                        <button class="seg-btn active" data-action="navigate">遷移</button>
+                        <button class="seg-btn" data-action="show-url">URL</button>
+                        <button class="seg-btn" data-action="check-status">📡</button>
+                    </div>
                 </div>
             </div>
 
-            <div class="direction-toggle">
-                <label>荷物区分</label>
-                <div class="direction-buttons">
-                    <button class="direction-btn active" data-direction="shipping">
-                        📤 発送
-                    </button>
-                    <button class="direction-btn" data-direction="receiving">
-                        📥 受取
-                    </button>
-                </div>
-            </div>
+            <!-- CTA -->
+            <button class="cta" id="checkBtn">配送状況を確認 →</button>
 
-            <div class="toggle-container">
-                <label>配送業者</label>
-                <div class="toggle-buttons">
-                    <button class="toggle-btn active" data-carrier="sagawa">
-                        <span class="company-icon">🚚</span>
-                        <span>佐川急便</span>
-                    </button>
-                    <button class="toggle-btn" data-carrier="yamato">
-                        <span class="company-icon">🐈</span>
-                        <span>ヤマト運輸</span>
-                    </button>
-                    <button class="toggle-btn" data-carrier="seino">
-                        <span class="company-icon">🦘</span>
-                        <span>西濃運輸</span>
-                    </button>
-                    <button class="toggle-btn" data-carrier="fukutsu">
-                        <span class="company-icon">🌅</span>
-                        <span>福山通運</span>
-                    </button>
-                    <button class="toggle-btn" data-carrier="okaken">
-                        <span class="company-icon">🦺</span>
-                        <span>オカケン</span>
-                    </button>
-                    <button class="toggle-btn" data-carrier="dhl">
-                        <span class="company-icon">🛩️</span>
-                        <span>DHL</span>
-                    </button>
-                    <button class="toggle-btn" data-carrier="ocs">
-                        <span class="company-icon">🌐</span>
-                        <span>OCS</span>
-                    </button>
-                    <button class="toggle-btn" data-carrier="ydh">
-                        <span class="company-icon">🐼</span>
-                        <span>YDH</span>
-                    </button>
-                    <button class="toggle-btn" data-carrier="sfexpress">
-                        <span class="company-icon">🇨🇳</span>
-                        <span>SF Express</span>
-                    </button>
-                    <button class="toggle-btn" data-carrier="japanpost">
-                        <span class="company-icon">🏣</span>
-                        <span>日本郵便</span>
-                    </button>
-                </div>
-            </div>
-            <div class="action-toggle">
-                <label>確認方法</label>
-                <div class="action-buttons">
-                    <button class="action-btn active" data-action="navigate">
-                        ページ遷移
-                    </button>
-                    <button class="action-btn" data-action="show-url">
-                        URL表示
-                    </button>
-                    <button class="action-btn" data-action="check-status">
-                        📡 確認
-                    </button>
-                </div>
-            </div>
-            <button class="check-btn" id="checkBtn">配送状況を確認</button>
-        </div>
-        <div class="output-container">
+            <!-- URL output -->
             <div class="url-output" id="urlOutput">
                 <div class="url-label">確認URL:</div>
                 <div class="url-display" id="urlDisplay"></div>
@@ -151,21 +135,16 @@
                 </div>
             </div>
 
-            <div class="status-output" id="statusOutput">
-                <div class="status-header">
-                    <span class="status-label">📡 ステータス確認</span>
-                </div>
-                <div class="status-body">
-                    <div class="status-unavailable">
-                        ステータス確認機能は準備中です。<br />
-                        代わりに「ページ遷移」で追跡サイトを開いてください。
-                    </div>
-                </div>
+            <!-- Status output -->
+            <div class="url-output" id="statusOutput">
+                <div class="url-label" id="statusLabel">📡 ステータス確認</div>
+                <div class="url-display" id="statusBody"></div>
             </div>
 
-            <div class="saved-section" id="savedSection">
+            <!-- Saved list -->
+            <div class="saved">
                 <div class="saved-header">
-                    <span class="saved-title">📋 保存済み追跡番号</span>
+                    <span class="saved-title">📋 保存済み</span>
                     <span class="saved-count" id="savedCount">0 / 8</span>
                 </div>
                 <div class="saved-list" id="savedList">

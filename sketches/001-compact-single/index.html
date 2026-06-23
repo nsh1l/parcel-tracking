@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Variant 1 — Compact Single-Panel</title>
+<style>
+:root {
+  --bg: #ADA097;
+  --card-bg: #FAF8F5;
+  --primary: #3E484E;
+  --secondary: #948D4F;
+  --accent: #8EA8C0;
+  --dark: #67573C;
+  --text: #3E484E;
+  --text-muted: #67573C;
+  --border: #C4BCB3;
+  --border-light: #D4CEC8;
+  --light-bg: #EDE9E5;
+  --error: #C0392B;
+  --shadow: rgba(62, 72, 78, 0.15);
+  --radius-card: 16px;
+  --radius-ctrl: 8px;
+  --space: 8px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans",
+    "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+  -webkit-text-size-adjust: 100%;
+}
+
+.panel {
+  background: var(--card-bg);
+  border-radius: var(--radius-card);
+  box-shadow: 0 8px 32px var(--shadow);
+  padding: 32px;
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--space) * 3);
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.header .sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ── Tracking number (hero input) ── */
+.tracking-hero {
+  position: relative;
+}
+.tracking-hero input {
+  width: 100%;
+  padding: 16px 16px 16px 48px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-ctrl);
+  font-size: 18px;
+  font-family: "SF Mono", "Menlo", monospace;
+  letter-spacing: 0.05em;
+  background: var(--card-bg);
+  color: var(--text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.tracking-hero input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(142, 168, 192, 0.15);
+}
+.tracking-hero .icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  opacity: 0.5;
+}
+.detect-badge {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 3px 10px;
+  background: rgba(148, 141, 79, 0.12);
+  color: var(--dark);
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ── Row: carrier select (compact chips) ── */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  padding: 6px 12px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.chip:hover {
+  border-color: var(--accent);
+  background: var(--light-bg);
+}
+.chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+.chip-icon {
+  font-size: 14px;
+}
+
+/* ── Collapsible details ── */
+.details-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  user-select: none;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.details-toggle .arrow {
+  transition: transform 0.2s;
+}
+.details-toggle.open .arrow {
+  transform: rotate(90deg);
+}
+.details-body {
+  display: none;
+  gap: var(--space);
+}
+.details-body.open {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.details-body input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-family: inherit;
+}
+.details-body input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ── Direction + Action inline row ── */
+.inline-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space);
+}
+.inline-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.seg-btns {
+  display: flex;
+  gap: 4px;
+}
+.seg-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.seg-btn:hover {
+  border-color: var(--accent);
+}
+.seg-btn.active[data-tone="shipping"] {
+  background: var(--secondary);
+  border-color: var(--secondary);
+  color: white;
+}
+.seg-btn.active[data-tone="receiving"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+.seg-btn.active[data-tone="action"] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* ── CTA ── */
+.cta {
+  width: 100%;
+  padding: 14px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-ctrl);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.cta:hover {
+  background: var(--dark);
+  transform: translateY(-1px);
+}
+.cta:active {
+  transform: translateY(0);
+}
+
+/* ── Saved list (compact) ── */
+.saved {
+  border-top: 1px solid var(--border-light);
+  padding-top: calc(var(--space) * 2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space);
+}
+.saved-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.saved-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.saved-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--light-bg);
+  border-radius: 100px;
+  padding: 2px 8px;
+}
+.saved-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.saved-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.saved-item:hover {
+  background: var(--light-bg);
+}
+.saved-item.shipping { border-left-color: var(--secondary); }
+.saved-item.receiving { border-left-color: var(--accent); }
+.saved-item-dir { font-size: 13px; flex-shrink: 0; }
+.saved-item-text {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.saved-item-carrier { font-weight: 700; color: var(--primary); }
+.saved-item-del {
+  font-size: 11px;
+  color: var(--border);
+  background: none;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.saved-item-del:hover { color: var(--error); }
+.saved-empty {
+  font-size: 12px;
+  color: var(--border);
+  text-align: center;
+  padding: 8px;
+}
+
+/* ── Memo input ── */
+.memo-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--card-bg);
+  color: var(--text);
+  font-family: inherit;
+}
+.memo-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+@media (max-width: 480px) {
+  body { padding: 12px; }
+  .panel { padding: 20px; }
+  .details-body.open { grid-template-columns: 1fr; }
+  .inline-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+  <div class="panel">
+    <!-- Header -->
+    <div class="header">
+      <h1>📦 配送状況確認</h1>
+      <div class="sub">配送番号を入力して追跡</div>
+    </div>
+
+    <!-- Hero: tracking number -->
+    <div class="tracking-hero">
+      <span class="icon">📋</span>
+      <input type="text" placeholder="配送番号" autocomplete="off" />
+      <div class="detect-badge" style="display:inline-block;">🚚 佐川急便 自動検出</div>
+    </div>
+
+    <!-- Carrier chips -->
+    <div>
+      <div class="section-label">配送業者</div>
+      <div class="chip-row">
+        <button class="chip active"><span class="chip-icon">🚚</span>佐川急便</button>
+        <button class="chip"><span class="chip-icon">🐈</span>ヤマト運輸</button>
+        <button class="chip"><span class="chip-icon">🦘</span>西濃運輸</button>
+        <button class="chip"><span class="chip-icon">🌅</span>福山通運</button>
+        <button class="chip"><span class="chip-icon">🦺</span>オカケン</button>
+        <button class="chip"><span class="chip-icon">🛩️</span>DHL</button>
+        <button class="chip"><span class="chip-icon">🌐</span>OCS</button>
+        <button class="chip"><span class="chip-icon">🐼</span>YDH</button>
+        <button class="chip"><span class="chip-icon">🇨🇳</span>SF Express</button>
+        <button class="chip"><span class="chip-icon">🏣</span>日本郵便</button>
+      </div>
+    </div>
+
+    <!-- Memo -->
+    <input type="text" class="memo-input" placeholder="メモ（品番・発送先など）" autocomplete="off" />
+
+    <!-- Collapsible details -->
+    <button class="details-toggle" onclick="this.classList.toggle('open'); document.getElementById('detailsBody').classList.toggle('open')">
+      <span class="arrow">▶</span> 詳細（指定日・サイズ・個口）
+    </button>
+    <div class="details-body" id="detailsBody">
+      <input type="text" placeholder="6/25 午前" />
+      <input type="text" placeholder="80" inputmode="numeric" />
+      <input type="text" placeholder="2" inputmode="numeric" />
+    </div>
+
+    <!-- Direction + Action inline -->
+    <div class="inline-row">
+      <div class="inline-group">
+        <div class="section-label">荷物区分</div>
+        <div class="seg-btns">
+          <button class="seg-btn active" data-tone="shipping">📤 発送</button>
+          <button class="seg-btn" data-tone="receiving">📥 受取</button>
+        </div>
+      </div>
+      <div class="inline-group">
+        <div class="section-label">確認方法</div>
+        <div class="seg-btns">
+          <button class="seg-btn active" data-tone="action">遷移</button>
+          <button class="seg-btn" data-tone="action">URL</button>
+          <button class="seg-btn" data-tone="action">📡</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <button class="cta">配送状況を確認 →</button>
+
+    <!-- Saved list -->
+    <div class="saved">
+      <div class="saved-header">
+        <span class="saved-title">保存済み</span>
+        <span class="saved-count">3 / 8</span>
+      </div>
+      <div class="saved-list">
+        <div class="saved-item shipping">
+          <span class="saved-item-dir">📤</span>
+          <div class="saved-item-text"><span class="saved-item-carrier">佐川急便</span> 品番A - 123456789012</div>
+          <button class="saved-item-del">✕</button>
+        </div>
+        <div class="saved-item receiving">
+          <span class="saved-item-dir">📥</span>
+          <div class="saved-item-text"><span class="saved-item-carrier">ヤマト運輸</span> 品番B - 987654321098</div>
+          <button class="saved-item-del">✕</button>
+        </div>
+        <div class="saved-item shipping">
+          <span class="saved-item-dir">📤</span>
+          <div class="saved-item-text"><span class="saved-item-carrier">DHL</span> 海外便 - 3456789012</div>
+          <button class="saved-item-del">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
