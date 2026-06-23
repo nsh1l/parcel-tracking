@@ -36,6 +36,48 @@
                 />
             </div>
 
+            <div class="detail-grid">
+                <div class="input-group">
+                    <label for="dateSlot">指定日・時間帯</label>
+                    <input
+                        type="text"
+                        id="dateSlot"
+                        placeholder="6/25 午前"
+                        autocomplete="off"
+                    />
+                </div>
+                <div class="input-group">
+                    <label for="size">サイズ</label>
+                    <input
+                        type="text"
+                        id="size"
+                        placeholder="80サイズ"
+                        autocomplete="off"
+                    />
+                </div>
+                <div class="input-group">
+                    <label for="itemCount">個口数</label>
+                    <input
+                        type="text"
+                        id="itemCount"
+                        placeholder="2個口"
+                        autocomplete="off"
+                    />
+                </div>
+            </div>
+
+            <div class="direction-toggle">
+                <label>荷物区分</label>
+                <div class="direction-buttons">
+                    <button class="direction-btn active" data-direction="shipping">
+                        📤 発送
+                    </button>
+                    <button class="direction-btn" data-direction="receiving">
+                        📥 受取
+                    </button>
+                </div>
+            </div>
+
             <div class="toggle-container">
                 <label>配送業者</label>
                 <div class="toggle-buttons">
@@ -101,7 +143,10 @@
             <div class="url-output" id="urlOutput">
                 <div class="url-label">確認URL:</div>
                 <div class="url-display" id="urlDisplay"></div>
-                <button class="copy-btn" id="copyBtn">URLをコピー</button>
+                <div class="copy-buttons">
+                    <button class="copy-btn" id="copyBtn">URLをコピー</button>
+                    <button class="copy-btn copy-text-btn" id="copyTextBtn">テキスト全体をコピー</button>
+                </div>
             </div>
 
             <div class="status-output" id="statusOutput">

@@ -2,18 +2,24 @@ import { CARRIERS } from "./carrier.js";
 import { detectCarrier } from "./detector.js";
 import { fetchStatus } from "./scraper.js";
 import { getSavedItems, addSavedItem, removeSavedItem } from "./storage.js";
-import { buildUrl, getCarrierLabel, formatUrlDisplay } from "./url-builder.js";
+import { buildUrl, getCarrierLabel, formatUrlDisplay, buildPlainText } from "./url-builder.js";
 import { validateTrackingNumber } from "./validator.js";
 
 let selectedCarrier = "sagawa";
 let selectedAction = "navigate";
+let selectedDirection = "shipping";
 const actionBtns = document.querySelectorAll(".action-btn");
+const directionBtns = document.querySelectorAll(".direction-btn");
 const urlOutput = document.getElementById("urlOutput");
 const statusOutput = document.getElementById("statusOutput");
 const urlDisplay = document.getElementById("urlDisplay");
 const copyBtn = document.getElementById("copyBtn");
+const copyTextBtn = document.getElementById("copyTextBtn");
 const trackingInput = document.getElementById("trackingNumber");
 const memoInput = document.getElementById("memo");
+const dateSlotInput = document.getElementById("dateSlot");
+const sizeInput = document.getElementById("size");
+const itemCountInput = document.getElementById("itemCount");
 const checkBtn = document.getElementById("checkBtn");
 const errorMessage = document.getElementById("errorMessage");
 const toggleBtns = document.querySelectorAll(".toggle-btn");
@@ -85,6 +91,14 @@ actionBtns.forEach((btn) => {
   });
 });
 
+directionBtns.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    directionBtns.forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedDirection = btn.dataset.direction;
+  });
+});
+
 copyBtn.addEventListener("click", async () => {
   const url = urlDisplay.querySelector("a")?.href || urlDisplay.textContent.trim();
   try {
@@ -94,6 +108,30 @@ copyBtn.addEventListener("click", async () => {
     setTimeout(() => {
       copyBtn.textContent = "URLをコピー";
       copyBtn.classList.remove("copied");
+    }, 2000);
+  } catch (err) {
+    alert("コピーに失敗しました");
+  }
+});
+
+copyTextBtn.addEventListener("click", async () => {
+  const url = urlDisplay.querySelector("a")?.href || urlDisplay.textContent.trim();
+  const text = buildPlainText(
+    selectedDirection,
+    dateSlotInput.value.trim(),
+    sizeInput.value.trim(),
+    itemCountInput.value.trim(),
+    selectedCarrier,
+    trackingInput.value.trim(),
+    url,
+  );
+  try {
+    await navigator.clipboard.writeText(text);
+    copyTextBtn.textContent = "コピーしました！";
+    copyTextBtn.classList.add("copied");
+    setTimeout(() => {
+      copyTextBtn.textContent = "テキスト全体をコピー";
+      copyTextBtn.classList.remove("copied");
     }, 2000);
   } catch (err) {
     alert("コピーに失敗しました");
@@ -129,7 +167,15 @@ checkBtn.addEventListener("click", async () => {
     if (statusOutput) statusOutput.classList.remove("show");
   } else if (selectedAction === "show-url") {
     const url = buildUrl(selectedCarrier, cleanedNumber);
-    urlDisplay.innerHTML = formatUrlDisplay(selectedCarrier, trackingNumber, url);
+    urlDisplay.innerHTML = formatUrlDisplay(
+      selectedCarrier,
+      trackingNumber,
+      url,
+      selectedDirection,
+      dateSlotInput.value.trim(),
+      sizeInput.value.trim(),
+      itemCountInput.value.trim(),
+    );
     urlOutput.classList.add("show");
     if (statusOutput) statusOutput.classList.remove("show");
   } else if (selectedAction === "check-status") {

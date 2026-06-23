@@ -79,6 +79,83 @@ input[type="text"]:focus {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+/* ── Detail grid (date/slot/size/count) ── */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.detail-grid .input-group {
+    margin-bottom: 0;
+}
+
+/* ── Direction toggle (shipping/receiving) ── */
+.direction-toggle {
+    margin-bottom: 24px;
+}
+
+.direction-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.direction-btn {
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    text-align: center;
+    min-height: 44px;
+}
+
+.direction-btn:hover {
+    border-color: #667eea;
+    background: #f8f9ff;
+}
+
+.direction-btn.active[data-direction="shipping"] {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border-color: #f59e0b;
+    color: white;
+}
+
+.direction-btn.active[data-direction="receiving"] {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #3b82f6;
+    color: white;
+}
+
+/* ── Copy buttons ── */
+.copy-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.copy-buttons .copy-btn {
+    flex: 1;
+}
+
+.copy-text-btn {
+    background: #10b981 !important;
+}
+
+.copy-text-btn:hover {
+    background: #059669 !important;
+}
+
+.copy-text-btn.copied {
+    background: #667eea !important;
+}
+
 .toggle-container {
     margin-bottom: 30px;
 }
@@ -629,5 +706,36 @@ input[type="text"]:focus {
     .toggle-container,
     .action-toggle {
         margin-bottom: 20px;
+    }
+
+    /* Detail grid: stack on narrow screens */
+    .detail-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+    }
+
+    .detail-grid input[type="text"] {
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+
+    .detail-grid label {
+        font-size: 11px;
+    }
+
+    /* Direction toggle */
+    .direction-btn {
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .direction-toggle {
+        margin-bottom: 20px;
+    }
+
+    /* Copy buttons: stack on mobile */
+    .copy-buttons {
+        flex-direction: column;
+        gap: 6px;
     }
 }
