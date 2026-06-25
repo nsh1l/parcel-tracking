@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "bun": "^1.3.10"
+    "bun": "^1.3.14"
   },
   "name": "parcel-tracking-app",
   "private": true,
