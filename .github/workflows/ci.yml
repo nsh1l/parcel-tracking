@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        if: hashFiles('bun.lock') != ''
+      - uses: actions/setup-node@v4
+        if: hashFiles('package-lock.json') != ''
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: |
+          if [ -f bun.lock ]; then bun install; elif [ -f package-lock.json ]; then npm ci; elif [ -f package.json ]; then npm install; fi
+        continue-on-error: true
+      - name: Run ESLint
+        run: npx eslint . --format github || true
+        continue-on-error: true
+      - name: Check Prettier formatting
+        run: npx prettier --check . || true
+        continue-on-error: true
