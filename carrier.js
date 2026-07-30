@@ -41,6 +41,12 @@ export const CARRIERS = {
     buildUrl: (n) =>
       `https://mydhl.express.dhl/jp/ja/tracking.html#/results?id=${encodeURIComponent(n)}`,
   },
+  fedex: {
+    label: "FedEx",
+    icon: "✈️",
+    buildUrl: (n) =>
+      `https://www.fedex.com/fedextrack/?trknbr=${encodeURIComponent(n)}`,
+  },
   ocs: {
     label: "OCS",
     icon: "🌐",
