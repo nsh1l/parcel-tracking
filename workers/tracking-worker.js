@@ -4,6 +4,7 @@ const MIN_NUMBER_LENGTH = 10;
 const MAX_NUMBER_LENGTH = 40;
 const MAX_RESPONSE_BYTES = 512 * 1024;
 const FETCH_TIMEOUT_MS = 10_000;
+const YAMATO_LOOKUP_URL = "https://toi.kuronekoyamato.co.jp/cgi-bin/tneko";
 
 // These pages return server-rendered tracking data that can be classified by a Worker.
 // Other carriers are still queried by lookupAll(), but their SPA/session-only pages are
@@ -11,12 +12,12 @@ const FETCH_TIMEOUT_MS = 10_000;
 const PARSERS = {
   japanpost: parseJapanPost,
   sagawa: parseSagawa,
+  yamato: parseYamato,
   okaken: parseOkaken,
   ocs: parseOcs,
 };
 
 const UNAVAILABLE_REASONS = {
-  yamato: "追跡ページがブラウザセッションを必要とします",
   seino: "文字コード・画面仕様のため自動判定に未対応です",
   fukutsu: "追跡フォームがURL照会に対応していません",
   dhl: "追跡ページがブラウザセッションを必要とします",
@@ -109,7 +110,10 @@ async function lookupCarrier(carrier, number) {
   }
 
   try {
-    const response = await fetchWithTimeout(trackingUrl);
+    const response =
+      carrier === "yamato"
+        ? await fetchYamato(number)
+        : await fetchWithTimeout(trackingUrl);
     if (!response.ok) {
       return { carrier, status: "error", message: `HTTP ${response.status}` };
     }
@@ -130,14 +134,31 @@ async function lookupCarrier(carrier, number) {
   }
 }
 
-async function fetchWithTimeout(url) {
+async function fetchYamato(number) {
+  const body = new URLSearchParams({
+    number00: "1",
+    number01: number,
+    category: "0",
+  });
+  return fetchWithTimeout(YAMATO_LOOKUP_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body,
+  });
+}
+
+async function fetchWithTimeout(url, options = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
     return await fetch(url, {
+      ...options,
       redirect: "follow",
       signal: controller.signal,
       headers: {
+        ...options.headers,
         Accept: "text/html,application/xhtml+xml",
         "User-Agent": "parcel-tracking/1.0",
       },
@@ -306,6 +327,59 @@ function parseSagawaHistory(html) {
   return history;
 }
 
+function parseYamato(html, number) {
+  const title = firstClassText(html, "tracking-invoice-block-title");
+  const state = firstClassText(html, "tracking-invoice-block-state-title");
+  if (!title || !state) {
+    return { status: "not_found", message: "追跡情報が見つかりません" };
+  }
+
+  const resultNumber = number;
+  const normalizedTitle = title.replace(/\D/g, "");
+  if (!normalizedTitle.endsWith(resultNumber)) {
+    return { status: "not_found", message: "追跡情報が見つかりません" };
+  }
+  if (containsAny(state, ["伝票番号未登録", "伝票番号誤り"])) {
+    return { status: "not_found", message: state };
+  }
+
+  const info = { number: resultNumber, status: state };
+  const summaryMatch = html.match(
+    /<div\b[^>]*class=["'][^"']*\btracking-invoice-block-summary\b[^"']*["'][^>]*>[\s\S]*?<ul\b[^>]*>([\s\S]*?)<\/ul>/i,
+  );
+  const summaryItems = summaryMatch?.[1]?.match(/<li\b[\s\S]*?<\/li>/gi) || [];
+  for (const item of summaryItems) {
+    const label = firstClassText(item, "item").replace(/[：:]$/, "");
+    const value = firstClassText(item, "data");
+    if (label && value) {
+      if (label.includes("商品名")) info.type = value;
+      if (label.includes("お届け予定日時")) info.scheduledDate = value;
+    }
+  }
+
+  const history = [];
+  const detailMatch = html.match(
+    /<div\b[^>]*class=["'][^"']*\btracking-invoice-block-detail\b[^"']*["'][^>]*>[\s\S]*?<ol\b[^>]*>([\s\S]*?)<\/ol>/i,
+  );
+  const rows = detailMatch?.[1]?.match(/<li\b[\s\S]*?<\/li>/gi) || [];
+  for (const row of rows) {
+    const event = {
+      status: firstClassText(row, "item"),
+      date: "",
+      time: "",
+      office: firstClassText(row, "name"),
+    };
+    const dateTime = firstClassText(row, "date");
+    const timeMatch = dateTime.match(/(\d{1,2}:\d{2})\s*$/);
+    event.time = timeMatch?.[1] || "";
+    event.date = timeMatch ? dateTime.slice(0, timeMatch.index).trim() : dateTime;
+    if (event.status) history.push(event);
+  }
+
+  const latest = history.at(-1) || { status: state };
+  return { status: "hit", info, history, latest };
+}
+
 function parseOkaken(html, number) {
   if (
     containsAny(html, [
@@ -382,6 +456,17 @@ function htmldecode(text) {
 
 function containsAny(text, needles) {
   return needles.some((needle) => text.includes(needle));
+}
+
+function firstClassText(html, className) {
+  const escaped = className.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = html.match(
+    new RegExp(
+      `<([a-z0-9]+)\\b[^>]*class=["'][^"']*\\b${escaped}\\b[^"']*["'][^>]*>([\\s\\S]*?)<\\/\\1>`,
+      "i",
+    ),
+  );
+  return match ? stripTags(match[2]) : "";
 }
 
 function toErrorMessage(error) {
