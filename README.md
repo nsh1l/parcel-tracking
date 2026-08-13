@@ -117,7 +117,7 @@ cd workers
 bunx wrangler deploy
 ```
 
-デプロイ後、`scraper.js` 内の `WORKER_URL` に Worker の URL を設定してください。
+現在の `scraper.js` にはデプロイ済み Worker URL が設定されています。別環境へデプロイする場合だけ、`WORKER_URL` をその環境のURLへ変更してください。
 
 #### ステータス取得対応状況
 
@@ -125,9 +125,27 @@ bunx wrangler deploy
 |------|:-----------------------:|
 | 日本郵便 | ✅ HTML パース |
 | 佐川急便 | ✅ HTML パース |
-| その他 | ❌ ページ遷移のみ |
+| オカケン | ✅ HTML パース |
+| OCS | ✅ 結果テーブルのHTMLパース |
+| その他 | ⚠️ 照会は実行するが、自動判定は未対応 |
 
-> ヤマト運輸はセッション認証が必要なため Worker から取得不可。SF Express は SPA のため HTML パース非対応。
+> ヤマト運輸・DHLはセッション認証、SF ExpressはSPAのため、WorkerのHTMLパースではヒット判定できません。未対応業者は `unavailable` に分類し、ヒット一覧には表示しません。
+
+#### 全業者照会API
+
+`GET /?number={追跡番号}` で `carrier.js` に登録された全業者へ並列照会します。
+
+```json
+{
+  "number": "123456789012",
+  "hits": [],
+  "checked": ["sagawa", "yamato", "..."],
+  "unavailable": [{ "carrier": "sfexpress", "message": "..." }],
+  "errors": []
+}
+```
+
+`hits` に入るのは、HTMLパーサーが追跡情報を確認できた業者だけです。`?carrier=sagawa&number=...` の従来の単一業者照会も引き続き利用できます。
 
 ## 技術スタック
 

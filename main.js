@@ -1,6 +1,6 @@
 import { CARRIERS } from "./carrier.js";
 import { detectCarrier } from "./detector.js";
-import { fetchStatus } from "./scraper.js";
+import { fetchAllStatuses } from "./scraper.js";
 import { getSavedItems, addSavedItem, removeSavedItem } from "./storage.js";
 import { buildUrl, carrierLabel, format } from "./url-builder.js";
 import { validateTrackingNumber } from "./validator.js";
@@ -152,7 +152,33 @@ checkBtn.addEventListener("click", async () => {
     return;
   }
   errorMessage.classList.remove("show");
-  const cleanedNumber = trackingNumber.replace(/-/g, "");
+  const cleanedNumber = trackingNumber.replace(/-/g, "").trim().toUpperCase();
+  const memo = memoInput.value.trim();
+
+  // ステータス確認は選択中の業者に絞らず、全業者を照会する。
+  if (selectedAction === "check-status") {
+    urlOutput.classList.remove("show");
+    checkBtn.disabled = true;
+    try {
+      const result = await checkAllStatuses(cleanedNumber, trackingNumber);
+      // ヒットした業者だけを履歴へ保存する（選択中チップを誤保存しない）。
+      if (result?.hits?.length) {
+        result.hits.forEach((hit) => {
+          addSavedItem(
+            hit.carrier,
+            memo,
+            trackingNumber,
+            MAX_SAVED,
+            selectedDirection,
+          );
+        });
+        renderSaved();
+      }
+    } finally {
+      checkBtn.disabled = false;
+    }
+    return;
+  }
 
   const validation = validateTrackingNumber(selectedCarrier, cleanedNumber);
   if (!validation.isValid) {
@@ -162,7 +188,6 @@ checkBtn.addEventListener("click", async () => {
     return;
   }
 
-  const memo = memoInput.value.trim();
   addSavedItem(selectedCarrier, memo, trackingNumber, MAX_SAVED, selectedDirection);
   renderSaved();
 
@@ -182,22 +207,19 @@ checkBtn.addEventListener("click", async () => {
     });
     urlOutput.classList.add("show");
     if (statusOutput) statusOutput.classList.remove("show");
-  } else if (selectedAction === "check-status") {
-    urlOutput.classList.remove("show");
-    await checkStatus(selectedCarrier, cleanedNumber, trackingNumber);
   }
 });
 
-async function checkStatus(carrier, cleanedNumber, displayNumber) {
-  if (!statusOutput) return;
+async function checkAllStatuses(cleanedNumber, displayNumber) {
+  if (!statusOutput) return { error: "結果表示領域が見つかりません" };
 
   statusOutput.innerHTML = `
-    <div class="url-label">📡 ステータス確認中...</div>
-    <div class="url-display" style="color: var(--border);">照会しています…</div>
+    <div class="url-label">📡 全業者を確認中...</div>
+    <div class="url-display" style="color: var(--border);">${escapeHtml(displayNumber)} を照会しています…</div>
   `;
   statusOutput.classList.add("show");
 
-  const result = await fetchStatus(carrier, cleanedNumber);
+  const result = await fetchAllStatuses(cleanedNumber);
 
   if (result.notReady) {
     statusOutput.innerHTML = `
@@ -207,71 +229,96 @@ async function checkStatus(carrier, cleanedNumber, displayNumber) {
         代わりに「遷移」で追跡サイトを開いてください。
       </div>
     `;
-    return;
+    return result;
   }
 
   if (result.error) {
     statusOutput.innerHTML = `
       <div class="url-label">📡 ステータス確認</div>
-      <div class="url-display" style="color: var(--error);">エラー: ${result.error}</div>
+      <div class="url-display" style="color: var(--error);">エラー: ${escapeHtml(result.error)}</div>
     `;
-    return;
+    return result;
   }
 
-  renderGenericStatus(result, carrier, displayNumber);
+  const hits = Array.isArray(result.hits)
+    ? result.hits.filter((hit) => CARRIERS[hit.carrier])
+    : [];
+
+  if (hits.length === 0) {
+    const checkedCount = result.checked?.length || Object.keys(CARRIERS).length;
+    const errorCount = result.errors?.length || 0;
+    statusOutput.innerHTML = `
+      <div class="url-label">📡 ヒットした配送業者</div>
+      <div class="url-display" style="color: var(--border);">
+        ${checkedCount}社を確認しましたが、追跡情報は見つかりませんでした。<br>
+        ${errorCount ? `${errorCount}社は照会エラーまたは未対応です。` : "番号と配送業者の組み合わせをご確認ください。"}
+      </div>
+    `;
+    return { ...result, hits };
+  }
+
+  statusOutput.innerHTML = `
+    <div class="url-label">📡 ヒットした配送業者（${hits.length}社）</div>
+    ${hits.map((hit) => renderStatusCard(hit, displayNumber)).join("")}
+  `;
+  return { ...result, hits };
 }
 
-function getStatusIcon(carrier) {
-  return CARRIERS[carrier]?.icon || "📦";
-}
-
-function renderGenericStatus(result, carrier, displayNumber) {
+function renderStatusCard(result, displayNumber) {
+  const carrier = result.carrier;
   const info = result.info || {};
   const latest = result.latest || {};
-  const history = result.history || [];
-  const icon = getStatusIcon(carrier);
-
-  let historyHtml = "";
-  if (history.length > 0) {
-    historyHtml = `
-      <details class="status-history" style="margin-top: 8px;">
+  const history = Array.isArray(result.history) ? result.history : [];
+  const url = buildUrl(carrier, displayNumber);
+  const status = latest.status || info.status || "追跡情報あり";
+  const infoHtml = Object.entries(info)
+    .filter(([, value]) => value !== undefined && value !== null && value !== "")
+    .map(
+      ([key, value]) =>
+        `<span><b>${escapeHtml(key)}</b>: ${escapeHtml(value)}</span>`,
+    )
+    .join("");
+  const historyHtml = history.length
+    ? `
+      <details style="margin-top: 8px;">
         <summary style="cursor: pointer; font-weight: 600; color: var(--accent); padding: 4px 0;">📋 履歴（${history.length}件）</summary>
         ${history
           .map(
-            (h) => `
+            (event) => `
           <div style="display: flex; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--border-light); font-size: 12px;">
-            <span style="color: var(--border); min-width: 100px;">${h.date || ""} ${h.time || ""}</span>
-            <span style="color: var(--text); font-weight: 600; flex: 1;">${h.status || ""}</span>
-            <span style="color: var(--text-muted);">${h.office || ""}</span>
+            <span style="color: var(--border); min-width: 100px;">${escapeHtml(`${event.date || ""} ${event.time || ""}`)}</span>
+            <span style="color: var(--text); font-weight: 600; flex: 1;">${escapeHtml(event.status || "")}</span>
+            <span style="color: var(--text-muted);">${escapeHtml(event.office || "")}</span>
           </div>
         `,
           )
           .join("")}
       </details>
-    `;
-  }
+    `
+    : "";
 
-  statusOutput.innerHTML = `
-    <div class="url-label">📡 ${icon} ${carrierLabel(carrier)}</div>
-    <div class="url-display" style="color: var(--text);">
-      <div style="font-size: 15px; font-weight: 700; margin-bottom: 6px;">● ${latest.status || info.status || "—"}</div>
-      <div style="display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--text-muted);">
-        ${info.shipDate ? `<span>📅 出荷日: ${info.shipDate}</span>` : ""}
-        ${info.date ? `<span>📅 ${info.date}</span>` : ""}
-        ${info.type ? `<span>📦 ${info.type}</span>` : ""}
-        ${info.office ? `<span>🏢 ${info.office}</span>` : ""}
-        ${info.prefecture ? `<span>📍 ${info.prefecture}</span>` : ""}
-        ${info.itemCount ? `<span>📊 ${info.itemCount}</span>` : ""}
-        ${info.number ? `<span>🔢 ${info.number}</span>` : ""}
-      </div>
-    </div>
-    ${historyHtml}
-    <div style="text-align: right; margin-top: 8px;">
-      <a href="${buildUrl(carrier, displayNumber.replace(/-/g, ""))}" target="_blank" style="font-size: 12px; color: var(--accent); text-decoration: underline;">
-        ${carrierLabel(carrier)}のサイトで開く →
-      </a>
-    </div>
+  return `
+    <article data-carrier="${escapeHtml(carrier)}" style="background: var(--card-bg); border: 1px solid var(--border-light); border-radius: 8px; padding: 12px; margin-top: 8px;">
+      <div style="font-size: 15px; font-weight: 700; color: var(--text);">${escapeHtml(getStatusIcon(carrier))} ${escapeHtml(carrierLabel(carrier))}</div>
+      <div style="font-size: 14px; font-weight: 700; margin-top: 6px; color: var(--primary);">● ${escapeHtml(status)}</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 6px; font-size: 12px; color: var(--text-muted);">${infoHtml || `<span>🔢 ${escapeHtml(displayNumber)}</span>`}</div>
+      ${historyHtml}
+      ${url ? `<div style="text-align: right; margin-top: 8px;"><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" style="font-size: 12px; color: var(--accent); text-decoration: underline;">${escapeHtml(carrierLabel(carrier))}のサイトで開く →</a></div>` : ""}
+    </article>
   `;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function getStatusIcon(carrier) {
+  return CARRIERS[carrier]?.icon || "📦";
 }
 
 // ── Auto-detection on input ──
