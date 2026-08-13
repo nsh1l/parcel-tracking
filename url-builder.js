@@ -40,7 +40,7 @@ function buildMetaMiddle(dateSlot, size, itemCount) {
  * @returns {string}
  *
  * Plain:  "佐川急便 | 6/25 午前着 | 80サイズ | 2個口 | お問合せNo. 123456789012\nhttps://..."
- * HTML:   '<span style="color: black;">佐川急便 | ... <br></span><a href="..." ...>...</a>'
+ * HTML:   '<span class="url-line">佐川急便 | ... <br></span><a class="url-link" href="...">...</a>'
  */
 export function format(record) {
   const {
@@ -59,7 +59,20 @@ export function format(record) {
   const head = `${label}${middle} | ${tLabel} ${number}`;
 
   if (fmt === "html") {
-    return `<span style="color: black;">${head} <br></span><a href="${url}" target="_blank" style="color: blue; text-decoration: underline;">${url}</a>`;
+    const safeHead = escapeHtml(head);
+    const safeUrl = escapeHtml(url || "");
+    return url
+      ? `<span class="url-line">${safeHead} <br></span><a class="url-link" href="${safeUrl}" target="_blank" rel="noopener noreferrer">${safeUrl}</a>`
+      : `<span class="url-line">${safeHead}</span>`;
   }
   return `${head}\n${url}`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }

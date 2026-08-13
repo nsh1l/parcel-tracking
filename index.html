@@ -6,24 +6,27 @@
         <title>配送状況確認</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="preconnect" href="https://cdn.jsdelivr.net" />
         <link href="https://fonts.googleapis.com/css2?family=LINE+Seed+JP&display=swap" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/npm/lism-css@0.25.0/dist/css/main.css" rel="stylesheet" />
         <link href="./global.css" rel="stylesheet" />
         <script type="module" src="./main.js"></script>
     </head>
-    <body>
-        <div class="panel">
+    <body class="l--center">
+        <div class="panel l--stack -g:20">
             <!-- Header -->
-            <div class="header">
-                <h1>📦 配送状況確認</h1>
-                <div class="sub">配送番号を入力して追跡</div>
+            <div class="header l--stack -g:5 -ai:center">
+                <h1 class="-fz:l -fw:700 -c:text">📦 配送状況確認</h1>
+                <div class="sub -fz:xs -c:text-2">配送番号を入力して追跡</div>
             </div>
 
             <!-- Hero: tracking number -->
-            <div class="tracking-hero">
+            <div class="tracking-hero l--stack -g:5">
                 <span class="icon">📋</span>
                 <input
                     type="text"
                     id="trackingNumber"
+                    class="-w:100%"
                     placeholder="配送番号を入力"
                     autocomplete="off"
                 />
@@ -35,39 +38,39 @@
 
             <!-- Carrier chips -->
             <div>
-                <div class="section-label">配送業者</div>
-                <div class="chip-row">
-                    <button class="chip active" data-carrier="sagawa">
+                <div class="section-label -fz:xs -fw:700">配送業者</div>
+                <div class="chip-row l--cluster -g:10">
+                    <button class="chip active -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="sagawa">
                         <span class="chip-icon">🚚</span>佐川急便
                     </button>
-                    <button class="chip" data-carrier="yamato">
+                    <button class="chip -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="yamato">
                         <span class="chip-icon">🐈</span>ヤマト運輸
                     </button>
-                    <button class="chip" data-carrier="seino">
+                    <button class="chip -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="seino">
                         <span class="chip-icon">🦘</span>西濃運輸
                     </button>
-                    <button class="chip" data-carrier="fukutsu">
+                    <button class="chip -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="fukutsu">
                         <span class="chip-icon">🌅</span>福山通運
                     </button>
-                    <button class="chip" data-carrier="okaken">
+                    <button class="chip -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="okaken">
                         <span class="chip-icon">🦺</span>オカケン
                     </button>
-                    <button class="chip" data-carrier="dhl">
+                    <button class="chip -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="dhl">
                         <span class="chip-icon">🛩️</span>DHL
                     </button>
-                    <button class="chip" data-carrier="fedex">
+                    <button class="chip -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="fedex">
                         <span class="chip-icon">✈️</span>FedEx
                     </button>
-                    <button class="chip" data-carrier="ocs">
+                    <button class="chip -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="ocs">
                         <span class="chip-icon">🌐</span>OCS
                     </button>
-                    <button class="chip" data-carrier="ydh">
+                    <button class="chip -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="ydh">
                         <span class="chip-icon">🐼</span>YDH
                     </button>
-                    <button class="chip" data-carrier="sfexpress">
+                    <button class="chip -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="sfexpress">
                         <span class="chip-icon">🇨🇳</span>SF Express
                     </button>
-                    <button class="chip" data-carrier="japanpost">
+                    <button class="chip -d:inline-flex -ai:center -g:5 -px:15 -py:10 -bdrs:99 -bd -fz:s -fw:600" data-carrier="japanpost">
                         <span class="chip-icon">🏣</span>日本郵便
                     </button>
                 </div>
@@ -76,25 +79,27 @@
             <!-- Memo -->
             <input
                 type="text"
-                class="memo-input"
+                class="memo-input -w:100% -px:15 -py:10 -bdrs:10 -bd -fz:s"
                 id="memo"
                 placeholder="メモ（品番・発送先など）"
                 autocomplete="off"
             />
 
             <!-- Collapsible details -->
-            <button class="details-toggle" id="detailsToggle" onclick="this.classList.toggle('open'); document.getElementById('detailsBody').classList.toggle('open');">
+            <button class="details-toggle -d:inline-flex -ai:center -g:5 -bd:none -bgc:transparent -p:0 -c:text-2 -fz:xs -fw:700" id="detailsToggle" onclick="this.classList.toggle('open'); document.getElementById('detailsBody').classList.toggle('open');">
                 <span class="arrow">▶</span> 詳細（指定日・サイズ・個口）
             </button>
-            <div class="details-body" id="detailsBody">
+            <div class="details-body l--grid -g:10" id="detailsBody">
                 <input
                     type="text"
+                    class="-w:100% -px:15 -py:10 -bdrs:10 -bd -fz:s"
                     id="dateSlot"
                     placeholder="6/25 午前"
                     autocomplete="off"
                 />
                 <input
                     type="text"
+                    class="-w:100% -px:15 -py:10 -bdrs:10 -bd -fz:s"
                     id="size"
                     placeholder="80"
                     inputmode="numeric"
@@ -102,6 +107,7 @@
                 />
                 <input
                     type="text"
+                    class="-w:100% -px:15 -py:10 -bdrs:10 -bd -fz:s"
                     id="itemCount"
                     placeholder="2"
                     inputmode="numeric"
@@ -110,51 +116,50 @@
             </div>
 
             <!-- Direction + Action inline -->
-            <div class="inline-row">
-                <div class="inline-group">
-                    <div class="section-label">荷物区分</div>
-                    <div class="seg-btns">
-                        <button class="seg-btn active" data-direction="shipping">📤 発送</button>
-                        <button class="seg-btn" data-direction="receiving">📥 受取</button>
+            <div class="inline-row l--grid -g:15">
+                <div class="inline-group l--stack -g:5">
+                    <div class="section-label -fz:xs -fw:700">荷物区分</div>
+                    <div class="seg-btns l--flex -g:5">
+                        <button class="seg-btn active -fx:1 -py:10 -px:10 -bdrs:10 -bd -fz:s -fw:600" data-direction="shipping">📤 発送</button>
+                        <button class="seg-btn -fx:1 -py:10 -px:10 -bdrs:10 -bd -fz:s -fw:600" data-direction="receiving">📥 受取</button>
                     </div>
                 </div>
-                <div class="inline-group">
-                    <div class="section-label">確認方法</div>
-                    <div class="seg-btns">
-                        <button class="seg-btn active" data-action="navigate">遷移</button>
-                        <button class="seg-btn" data-action="show-url">URL</button>
-                        <button class="seg-btn" data-action="check-status">📡</button>
+                <div class="inline-group l--stack -g:5">
+                    <div class="section-label -fz:xs -fw:700">確認方法</div>
+                    <div class="seg-btns l--flex -g:5">
+                        <button class="seg-btn active -fx:1 -py:10 -px:10 -bdrs:10 -bd -fz:s -fw:600" data-action="check-status">📡</button>
+                        <button class="seg-btn -fx:1 -py:10 -px:10 -bdrs:10 -bd -fz:s -fw:600" data-action="show-url">URL</button>
                     </div>
                 </div>
             </div>
 
             <!-- CTA -->
-            <button class="cta" id="checkBtn">配送状況を確認 →</button>
+            <button class="cta -w:100% -d:flex -ai:center -jc:center -g:5 -py:15 -px:20 -bdrs:10 -bgc:brand -c:base -fz:m -fw:700" id="checkBtn">配送状況を確認 →</button>
 
             <!-- URL output -->
-            <div class="url-output" id="urlOutput">
-                <div class="url-label">確認URL:</div>
-                <div class="url-display" id="urlDisplay"></div>
-                <div class="copy-buttons">
-                    <button class="copy-btn" id="copyBtn">URLをコピー</button>
-                    <button class="copy-btn copy-text-btn" id="copyTextBtn">テキスト全体をコピー</button>
+            <div class="url-output l--stack -g:10 -p:20 -bdrs:10 -bd" id="urlOutput">
+                <div class="url-label -fz:s -fw:600">共有用にコピーする</div>
+                <div class="url-display -p:15 -bdrs:10 -bd -fz:s" id="urlDisplay"></div>
+                <div class="copy-buttons l--flex -fxw:wrap -g:10">
+                    <button class="copy-btn -fx:1 -py:10 -px:15 -bdrs:10 -bgc:brand -c:base -fz:s -fw:600" id="copyBtn">URLをコピー</button>
+                    <button class="copy-btn copy-text-btn -fx:1 -py:10 -px:15 -bdrs:10 -bgc:keycolor -c:base -fz:s -fw:600" id="copyTextBtn">テキスト全体をコピー</button>
                 </div>
             </div>
 
             <!-- Status output -->
-            <div class="url-output" id="statusOutput">
-                <div class="url-label" id="statusLabel">📡 ステータス確認</div>
-                <div class="url-display" id="statusBody"></div>
+            <div class="url-output l--stack -g:10 -p:20 -bdrs:10 -bd" id="statusOutput">
+                <div class="url-label -fz:s -fw:600" id="statusLabel">📡 ステータス確認</div>
+                <div class="url-display -p:15 -bdrs:10 -bd -fz:s" id="statusBody"></div>
             </div>
 
             <!-- Saved list -->
-            <div class="saved">
-                <div class="saved-header">
-                    <span class="saved-title">📋 保存済み</span>
-                    <span class="saved-count" id="savedCount">0 / 8</span>
+            <div class="saved l--stack -g:10 -pt:20 -bd-t">
+                <div class="saved-header l--flex -jc:between -ai:center">
+                    <span class="saved-title -fz:xs -fw:700">📋 保存済み</span>
+                    <span class="saved-count -fz:xs -fw:600 -px:10 -py:5 -bdrs:99 -bgc:base-2 -c:brand" id="savedCount">0 / 8</span>
                 </div>
-                <div class="saved-list" id="savedList">
-                    <p class="saved-empty">保存された追跡番号はありません</p>
+                <div class="saved-list l--stack -g:5" id="savedList">
+                    <p class="saved-empty -fz:s -c:text-2">保存された追跡番号はありません</p>
                 </div>
             </div>
         </div>

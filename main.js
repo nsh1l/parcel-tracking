@@ -6,7 +6,7 @@ import { buildUrl, carrierLabel, format } from "./url-builder.js";
 import { validateTrackingNumber } from "./validator.js";
 
 let selectedCarrier = "sagawa";
-let selectedAction = "navigate";
+let selectedAction = "check-status";
 let selectedDirection = "shipping";
 
 const carrierChips = document.querySelectorAll(".chip[data-carrier]");
@@ -48,8 +48,8 @@ function renderSaved() {
     <div class="saved-item ${item.direction === "receiving" ? "receiving" : "shipping"}" data-index="${i}">
       <span class="saved-item-dir">${item.direction === "receiving" ? "📥" : "📤"}</span>
       <div class="saved-item-text">
-        <span class="saved-item-carrier">${carrierLabel(item.carrier)}</span>
-        ${item.memo ? ` ${item.memo}` : ""} - ${item.trackingNumber}
+        <span class="saved-item-carrier">${escapeHtml(carrierLabel(item.carrier))}</span>
+        ${item.memo ? ` ${escapeHtml(item.memo)}` : ""} - ${escapeHtml(item.trackingNumber)}
       </div>
       <button class="saved-item-del" data-index="${i}">✕</button>
     </div>
@@ -191,12 +191,8 @@ checkBtn.addEventListener("click", async () => {
   addSavedItem(selectedCarrier, memo, trackingNumber, MAX_SAVED, selectedDirection);
   renderSaved();
 
-  if (selectedAction === "navigate") {
-    const url = buildUrl(selectedCarrier, cleanedNumber);
-    window.open(url, "_blank");
-    urlOutput.classList.remove("show");
-    if (statusOutput) statusOutput.classList.remove("show");
-  } else if (selectedAction === "show-url") {
+  if (selectedAction === "show-url") {
+    // format(..., "html") escapes all user-controlled values before insertion.
     urlDisplay.innerHTML = format({
       carrier: selectedCarrier,
       number: trackingNumber,
@@ -215,7 +211,7 @@ async function checkAllStatuses(cleanedNumber, displayNumber) {
 
   statusOutput.innerHTML = `
     <div class="url-label">📡 全業者を確認中...</div>
-    <div class="url-display" style="color: var(--border);">${escapeHtml(displayNumber)} を照会しています…</div>
+    <div class="url-display status-message status-message-muted">${escapeHtml(displayNumber)} を照会しています…</div>
   `;
   statusOutput.classList.add("show");
 
@@ -224,9 +220,9 @@ async function checkAllStatuses(cleanedNumber, displayNumber) {
   if (result.notReady) {
     statusOutput.innerHTML = `
       <div class="url-label">📡 ステータス確認</div>
-      <div class="url-display" style="color: var(--border);">
+      <div class="url-display status-message status-message-muted">
         ステータス確認機能は準備中です。<br>
-        代わりに「遷移」で追跡サイトを開いてください。
+        「URL」に切り替えると共有用URLを確認できます。
       </div>
     `;
     return result;
@@ -235,7 +231,7 @@ async function checkAllStatuses(cleanedNumber, displayNumber) {
   if (result.error) {
     statusOutput.innerHTML = `
       <div class="url-label">📡 ステータス確認</div>
-      <div class="url-display" style="color: var(--error);">エラー: ${escapeHtml(result.error)}</div>
+      <div class="url-display status-message status-message-error">エラー: ${escapeHtml(result.error)}</div>
     `;
     return result;
   }
@@ -249,7 +245,7 @@ async function checkAllStatuses(cleanedNumber, displayNumber) {
     const errorCount = result.errors?.length || 0;
     statusOutput.innerHTML = `
       <div class="url-label">📡 ヒットした配送業者</div>
-      <div class="url-display" style="color: var(--border);">
+      <div class="url-display status-message status-message-muted">
         ${checkedCount}社を確認しましたが、追跡情報は見つかりませんでした。<br>
         ${errorCount ? `${errorCount}社は照会エラーまたは未対応です。` : "番号と配送業者の組み合わせをご確認ください。"}
       </div>
@@ -280,15 +276,15 @@ function renderStatusCard(result, displayNumber) {
     .join("");
   const historyHtml = history.length
     ? `
-      <details style="margin-top: 8px;">
-        <summary style="cursor: pointer; font-weight: 600; color: var(--accent); padding: 4px 0;">📋 履歴（${history.length}件）</summary>
+      <details class="status-history">
+        <summary class="status-history-summary">📋 履歴（${history.length}件）</summary>
         ${history
           .map(
             (event) => `
-          <div style="display: flex; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--border-light); font-size: 12px;">
-            <span style="color: var(--border); min-width: 100px;">${escapeHtml(`${event.date || ""} ${event.time || ""}`)}</span>
-            <span style="color: var(--text); font-weight: 600; flex: 1;">${escapeHtml(event.status || "")}</span>
-            <span style="color: var(--text-muted);">${escapeHtml(event.office || "")}</span>
+          <div class="status-event">
+            <span class="status-event-date">${escapeHtml(`${event.date || ""} ${event.time || ""}`)}</span>
+            <span class="status-event-status">${escapeHtml(event.status || "")}</span>
+            <span>${escapeHtml(event.office || "")}</span>
           </div>
         `,
           )
@@ -298,12 +294,12 @@ function renderStatusCard(result, displayNumber) {
     : "";
 
   return `
-    <article data-carrier="${escapeHtml(carrier)}" style="background: var(--card-bg); border: 1px solid var(--border-light); border-radius: 8px; padding: 12px; margin-top: 8px;">
-      <div style="font-size: 15px; font-weight: 700; color: var(--text);">${escapeHtml(getStatusIcon(carrier))} ${escapeHtml(carrierLabel(carrier))}</div>
-      <div style="font-size: 14px; font-weight: 700; margin-top: 6px; color: var(--primary);">● ${escapeHtml(status)}</div>
-      <div style="display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 6px; font-size: 12px; color: var(--text-muted);">${infoHtml || `<span>🔢 ${escapeHtml(displayNumber)}</span>`}</div>
+    <article class="status-card" data-carrier="${escapeHtml(carrier)}">
+      <div class="status-card-title">${escapeHtml(getStatusIcon(carrier))} ${escapeHtml(carrierLabel(carrier))}</div>
+      <div class="status-card-latest">● ${escapeHtml(status)}</div>
+      <div class="status-card-info">${infoHtml || `<span>🔢 ${escapeHtml(displayNumber)}</span>`}</div>
       ${historyHtml}
-      ${url ? `<div style="text-align: right; margin-top: 8px;"><a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" style="font-size: 12px; color: var(--accent); text-decoration: underline;">${escapeHtml(carrierLabel(carrier))}のサイトで開く →</a></div>` : ""}
+      ${url ? `<a class="status-card-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(carrierLabel(carrier))}のサイトで開く →</a>` : ""}
     </article>
   `;
 }
