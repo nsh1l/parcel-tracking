@@ -17,11 +17,19 @@
     }
 
     body {
+        min-block-size: 100vh;
         min-block-size: 100dvh;
         padding: var(--s20);
         background: var(--base-2);
         overflow-y: auto;
         -webkit-text-size-adjust: 100%;
+        font-family: "LINE Seed JP", -apple-system, BlinkMacSystemFont,
+            "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    .page-center {
+        inline-size: 100%;
+        min-block-size: calc(100dvh - (2 * var(--s20)));
     }
 
     .panel {
@@ -155,7 +163,7 @@
 
     .details-toggle {
         justify-self: start;
-        min-block-size: 2.25rem;
+        min-block-size: 2.75rem;
         color: var(--text-2);
         text-align: start;
     }
@@ -300,6 +308,21 @@
             border-color 160ms ease-out;
     }
 
+    .saved-item-open {
+        display: flex;
+        min-block-size: 2.75rem;
+        min-inline-size: 0;
+        flex: 1;
+        align-items: center;
+        gap: var(--s10);
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: start;
+    }
+
     .saved-item:hover {
         border-color: var(--accent);
         background: var(--base-2);
@@ -334,12 +357,19 @@
     }
 
     .saved-item-del {
+        min-block-size: 2.75rem;
+        min-inline-size: 2.75rem;
         flex-shrink: 0;
         padding: var(--s5);
         border: 0;
         background: transparent;
         color: var(--text-2);
         font-size: var(--fz--xs);
+    }
+
+    .saved-item-open:hover,
+    .saved-item-del:hover {
+        cursor: pointer;
     }
 
     .saved-item-del:hover {
@@ -464,6 +494,10 @@
             align-items: start;
             align-content: start;
             padding: var(--s10);
+        }
+
+        .page-center {
+            min-block-size: calc(100dvh - (2 * var(--s10)));
         }
 
         .panel {

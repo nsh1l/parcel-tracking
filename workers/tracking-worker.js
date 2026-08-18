@@ -381,26 +381,82 @@ function parseYamato(html, number) {
 }
 
 function parseOkaken(html, number) {
-  if (
-    containsAny(html, [
-      "お問合せ番号に該当するものがありません",
-      "お問い合せ番号に該当するものがありません",
-    ])
-  ) {
+  const text = normalizeOkakenText(stripTags(html));
+  if (containsAny(text, ["お問合せ番号に該当するものがありません", "お問い合せ番号に該当するものがありません"])) {
     return { status: "not_found", message: "該当するデータが見つかりません" };
   }
 
-  const text = stripTags(html);
-  if (!html.includes(number) || !/(貨物追跡|追跡照会|お荷物)/.test(text)) {
+  if (!text.includes(number)) {
     return { status: "not_found", message: "追跡情報が見つかりません" };
   }
 
+  const tables = html.match(/<table\b[^>]*>[\s\S]*?<\/table>/gi) || [];
+  const info = { number };
+  const summaryTable = tables.find((table) => {
+    const tableText = normalizeOkakenText(stripTags(table));
+    return tableText.includes("個口") && tableText.includes("重量") && tableText.includes("商品名");
+  });
+  if (summaryTable) {
+    const values = (summaryTable.match(/<td\b[^>]*>[\s\S]*?<\/td>/gi) || []).map(okakenCellText);
+    const infoKeys = {
+      個口: "itemCount",
+      重量: "weight",
+      元着区分: "paymentType",
+      商品名: "type",
+    };
+    for (let index = 0; index + 1 < values.length; index += 2) {
+      const key = infoKeys[values[index].replace(/\s/g, "")];
+      if (key) info[key] = values[index + 1];
+    }
+  }
+
+  const historyTable = tables.find((table) => {
+    const tableText = normalizeOkakenText(stripTags(table));
+    return tableText.includes("配達状況") && tableText.includes("日付") && tableText.includes("状況");
+  });
+  const history = [];
+  if (historyTable) {
+    const rows = historyTable.match(/<tr\b[^>]*>[\s\S]*?<\/tr>/gi) || [];
+    for (const row of rows) {
+      const values = (row.match(/<td\b[^>]*>[\s\S]*?<\/td>/gi) || []).map(okakenCellText);
+      if (values.length < 4 || values[0] === "日付") continue;
+      history.push({
+        date: values[0],
+        time: values[1],
+        status: values[2],
+        office: values[3],
+        phone: values[4] || "",
+      });
+    }
+    const note = historyTable.match(/<th\b[^>]*>([\s\S]*?)<\/th>/i);
+    if (note) info.note = okakenCellText(note[1]);
+  }
+
+  if (!summaryTable && history.length === 0) {
+    return { status: "not_found", message: "追跡情報が見つかりません" };
+  }
+
+  const latest = history.at(-1) || { status: "追跡情報あり" };
+  info.status = latest.status;
+
   return {
     status: "hit",
-    info: { number },
-    history: [],
-    latest: { status: "追跡情報あり" },
+    info,
+    history,
+    latest,
   };
+}
+
+function okakenCellText(value) {
+  return normalizeOkakenText(tableCellText(value));
+}
+
+function normalizeOkakenText(value) {
+  return value
+    .replace(/[０-９]/g, (digit) => String.fromCharCode(digit.charCodeAt(0) - 0xfee0))
+    .replace(/\u3000/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function parseOcs(html, number) {

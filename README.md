@@ -5,7 +5,7 @@
 ## 機能
 
 - **11 配送業者対応** — 佐川急便 / ヤマト運輸 / 西濃運輸 / 福山通運 / オカケン / DHL / FedEx / OCS / YDH / SF Express / 日本郵便
-- **自動業者検出** — 配送番号の形式から入力中に配送業者を自動判定（日本郵便・DHL・SF Express は形式で確定、12 桁の場合は手動選択）
+- **自動業者検出** — 配送番号の形式から入力中に配送業者を自動判定（日本郵便のJP形式・SF ExpressのSF形式・FedExのDoor Tag形式のみ一意に判定。数字のみは手動選択）
 - **2 つの確認モード**
   - **📡 ステータス確認** — Cloudflare Worker 経由で配送状況を取得（別途 Worker デプロイが必要）
   - **URL 表示** — 「共有用にコピーする」として詳細情報・業者名・追跡番号・URL を表示しワンクリックでコピー
@@ -22,19 +22,19 @@
 
 | 業者 | 識別子 | 形式 | 自動検出 |
 |------|--------|------|:--------:|
-| 🚚 佐川急便 | `sagawa` | 数字 12 桁 | — |
-| 🐈 ヤマト運輸 | `yamato` | 数字 12 桁 | — |
-| 🦘 西濃運輸 | `seino` | 数字 12 桁 | — |
-| 🌅 福山通運 | `fukutsu` | 数字 12 桁 | — |
-| 🦺 オカケン | `okaken` | 数字 12 桁 | — |
-| 🛩️ DHL | `dhl` | 数字 10 桁 | ✅ |
-| ✈️ FedEx | `fedex` | 追跡番号 | — |
-| 🌐 OCS | `ocs` | — | — |
-| 🐼 YDH | `ydh` | 数字 12 桁 | — |
+| 🚚 佐川急便 | `sagawa` | 数字 10 桁または12桁 | — |
+| 🐈 ヤマト運輸 | `yamato` | 数字 11 桁または12桁 | — |
+| 🦘 西濃運輸 | `seino` | 数字 10 桁または12桁 | — |
+| 🌅 福山通運 | `fukutsu` | 数字 10 桁または11桁 | — |
+| 🦺 オカケン | `okaken` | 数字 10 桁 | — |
+| 🛩️ DHL | `dhl` | 数字 10 桁 | — |
+| ✈️ FedEx | `fedex` | 数字 10・12・15・20・22桁 / `DT` + 数字12桁 | ✅（DT形式のみ） |
+| 🌐 OCS | `ocs` | 数字 11〜12桁 | — |
+| 🐼 YDH | `ydh` | 英数字 10〜40文字（固定桁なし） | — |
 | 🇨🇳 SF Express | `sfexpress` | `SF` \+ 数字 13 桁 / 数字 12 桁 | ✅ |
 | 🏣 日本郵便 | `japanpost` | `XX000000000JP` / 数字 11 桁 | ✅ |
 
-> 12 桁の番号は佐川 / ヤマト / 西濃 / 福山通運 / オカケン / FedEx / YDH / SF Express で競合するため、自動検出は行わず手動選択が必要です。SF\+13桁のみ一意に自動検出されます。
+> 数字だけの番号は複数業者の形式と競合するため、自動検出せず手動選択にします。`XX000000000JP`、`SF` + 数字13桁、`DT` + 数字12桁のように一意な形式だけ自動検出します。
 
 ## 使い方
 
@@ -71,15 +71,19 @@ https://k2k.sagawa-exp.co.jp/p/web/okurijosearch.do?okurijoNo=123456789012
 
 ```
 parcel-tracking/
-├── index.html          # メイン UI
-├── global.css          # スタイル定義
-├── main.js             # UI 制御・イベントハンドリング
+├── index.html          # Vite エントリ
+├── src/
+│   ├── main.jsx        # React エントリ
+│   └── App.jsx         # UI・状態・イベントハンドリング
+├── global.css          # Lism CSS のカスタムスタイル
 ├── carrier.js          # 配送業者定義・URL 生成ロジック
 ├── detector.js         # 配送番号からの業者自動検出
 ├── validator.js        # 入力形式バリデーション
 ├── url-builder.js      # URL 構築・キャリアラベル・フォーマッター
 ├── storage.js          # LocalStorage 保存・管理
 ├── scraper.js          # Cloudflare Worker 経由のステータス取得
+├── tests/logic.test.mjs # ドメインロジックの回帰テスト
+├── vite.config.mjs     # Vite + React 設定
 └── workers/
     ├── tracking-worker.js  # Cloudflare Worker（ステータススクレイピング）
     ├── wrangler.toml       # Worker 設定
@@ -101,10 +105,15 @@ bun install
 開発用ローカルサーバー:
 
 ```bash
-bun run index.html
+bun run dev
 ```
 
-または任意の静的ファイルサーバーで `index.html` を配信してください。
+本番ビルドとプレビュー:
+
+```bash
+bun run build
+bun run preview
+```
 
 ### Cloudflare Worker のデプロイ
 
@@ -147,12 +156,13 @@ bunx wrangler deploy
 
 ## 技術スタック
 
-- **言語**: HTML / CSS / JavaScript (ES Modules)
+- **言語**: React / JSX / CSS / JavaScript (ES Modules)
+- **ビルド**: Vite
 - **ランタイム**: Bun
 - **ステータス取得**: Cloudflare Workers（オプション）
 - **ストレージ**: ブラウザ LocalStorage
-- **スタイル**: [Lism CSS](https://lism-css.com/)（jsDelivr CDN）
-- **外部依存**: Lism CSS と LINE Seed JP を CDN から読み込み、ロジックは Pure JS
+- **スタイル**: [Lism CSS](https://lism-css.com/)（`lism-css/react` のレイアウトコンポーネント + npm CSS）
+- **外部フォント**: LINE Seed JP（Google Fonts）
 
 ## ライセンス
 

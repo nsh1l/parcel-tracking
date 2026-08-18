@@ -1,26 +1,27 @@
+import { CARRIERS } from "./carrier.js";
+
+const MIN_TRACKING_NUMBER_LENGTH = 10;
+const MAX_TRACKING_NUMBER_LENGTH = 40;
+
 export function validateTrackingNumber(carrier, cleanedNumber) {
-  if ((carrier === "sagawa" || carrier === "yamato") && cleanedNumber.length !== 12) {
-    return { isValid: false, message: "配達番号は12桁の数字で入力してください" };
+  const config = CARRIERS[carrier];
+  if (!config) return { isValid: false, message: "不明な配送業者です" };
+
+  const normalizedNumber = String(cleanedNumber ?? "")
+    .replace(/-/g, "")
+    .trim()
+    .toUpperCase();
+  const hasValidSyntax =
+    /^[A-Z0-9]+$/.test(normalizedNumber) &&
+    normalizedNumber.length >= MIN_TRACKING_NUMBER_LENGTH &&
+    normalizedNumber.length <= MAX_TRACKING_NUMBER_LENGTH;
+
+  if (!hasValidSyntax || (config.detect && !config.detect.test(normalizedNumber))) {
+    return {
+      isValid: false,
+      message: `${config.label}の追跡番号は${config.formatHint || "正しい形式"}で入力してください`,
+    };
   }
-  if (carrier === "japanpost") {
-    const ok = /^\d{11}$/.test(cleanedNumber) || /^[A-Za-z]{2}\d{9}JP$/i.test(cleanedNumber);
-    if (!ok) {
-      return {
-        isValid: false,
-        message:
-          "日本郵便の追跡番号は11桁の数字、または英字2桁+数字9桁+JPの形式で入力してください",
-      };
-    }
-  }
-  if (carrier === "sfexpress") {
-    const ok = /^\d{12}$/.test(cleanedNumber) || /^SF\d{13}$/i.test(cleanedNumber);
-    if (!ok) {
-      return {
-        isValid: false,
-        message:
-          "SF Expressの追跡番号は12桁の数字、またはSF+13桁の数字で入力してください",
-      };
-    }
-  }
+
   return { isValid: true };
 }

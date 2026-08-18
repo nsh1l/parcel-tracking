@@ -1,24 +1,20 @@
 import { CARRIERS } from "./carrier.js";
 
-// Detection order: most unique pattern first
-const DETECT_ORDER = ["japanpost", "dhl", "sfexpress"];
-
 /**
  * Detect carrier from tracking number.
- * Returns carrier key if unique match, null if ambiguous.
+ * Returns a carrier key only when exactly one configured format matches.
+ * Ambiguous formats stay manual instead of being guessed.
  */
 export function detectCarrier(number) {
-  const cleaned = number.replace(/-/g, "").trim().toUpperCase();
+  const cleaned = String(number ?? "").replace(/-/g, "").trim().toUpperCase();
   if (!cleaned) return null;
 
-  for (const key of DETECT_ORDER) {
-    const cfg = CARRIERS[key];
-    if (cfg.detect && cfg.detect.test(cleaned)) {
-      return key;
-    }
+  let match = null;
+  for (const [key, config] of Object.entries(CARRIERS)) {
+    if (!config.detect?.test(cleaned)) continue;
+    if (match) return null;
+    match = key;
   }
 
-  // 12-digit numbers match sagawa/yamato/seino/fukutsu/okaken/ydh
-  // Too many conflicts → not detected automatically
-  return null;
+  return match;
 }
