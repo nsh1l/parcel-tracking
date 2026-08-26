@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "bun": "^1.4.0",
-    "lism-css": "^0.25.0",
+    "lism-css": "^0.26.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
