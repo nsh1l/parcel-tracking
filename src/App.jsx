@@ -194,12 +194,23 @@ export function App() {
     <Center as="main" className="page-center">
       <Box as="section" className="panel">
         <Stack g="20">
-          <Stack className="header" g="5" ai="center">
+          <Stack className="header" g="10" ai="center">
+            <a className="ayp-brand" href="https://alwaysyesterday.party/" aria-label="Always Yesterday Party">
+              <img
+                className="ayp-logo"
+                src={`${import.meta.env.BASE_URL}ayp-logo.jpg`}
+                alt=""
+              />
+              <span className="ayp-brand-copy">
+                <strong>Always Yesterday Party</strong>
+                <small><span className="ayp-signal" aria-hidden="true" /> Development</small>
+              </span>
+            </a>
             <Heading level="1" fz="l" fw="700" c="text">
-              📦 配送状況確認
+              AYP Parcel Tracking
             </Heading>
             <Text as="div" className="sub" fz="xs" c="text-2">
-              配送番号を入力して追跡
+              📦 配送番号を入力して配送状況を確認
             </Text>
           </Stack>
 
