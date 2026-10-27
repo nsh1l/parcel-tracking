@@ -9,7 +9,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "bun": "^1.4.2",
+    "bun": "^1.4.4",
     "lism-css": "^1.0.1",
     "react": "^19.3.0",
     "react-dom": "^19.3.0"
